@@ -1,0 +1,41 @@
+{
+  "private": true,
+  "scripts": {
+    "clean": "rimraf build coverage",
+    "start": "parcel serve src/index.html",
+    "test": "jest --verbose",
+    "precoverage": "rimraf coverage",
+    "coverage": "yarn test --coverage",
+    "format": "prettier --write src/{*,**/*}.{ts,tsx}",
+    "lint": "yarn prettier --list-different src/{*,**/*}.{ts,tsx}",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-use": "^14.2.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.2.1",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.7",
+    "jest": "^25.4.0",
+    "parcel": "^2.0.0-alpha.3.2",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^25.4.0",
+    "typescript": "^3.8.3"
+  },
+  "jest": {
+    "rootDir": "src",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "moduleFileExtensions": [
+      "tsx",
+      "ts",
+      "js"
+    ],
+    "coverageDirectory": "coverage"
+  }
+}
