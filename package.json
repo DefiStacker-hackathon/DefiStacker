@@ -5,5 +5,8 @@
   "main": "index.js",
   "repository": "git@github.com:DecentralizedPlanetarian/DefiStacker.git",
   "author": "Sean Casey <sean@seanjcasey.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.0.1"
+  }
 }
