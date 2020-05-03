@@ -1,6 +1,4 @@
-// TODO: choose address to represent ETH (address(0) or KYBER_ETH or what?)
-
-pragma solidity ^0.6.6;
+pragma solidity ^0.6.4;
 pragma experimental ABIEncoderV2;
 
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
@@ -15,7 +13,12 @@ contract Stacker is Ownable {
 
     mapping (address => address) public adapterToGateway;
 
+    address constant ETH_ADDRESS = address(0); // TODO: change this potentially
+
     // EXTERNAL FUNCTIONS
+
+    // Needed to receive ETH from adapters
+    receive() external payable {}
 
     function addAdapter(address _adapter, address _gateway) external onlyOwner {
         adapterToGateway[_adapter] = _gateway;
@@ -44,7 +47,9 @@ contract Stacker is Ownable {
         // CUSTODY SPEND ASSETS
 
         for (uint256 i = 0; i < _spendAssets.length; i++) {
-            require(IERC20(_spendAssets[i]).transferFrom(msg.sender, address(this), _spendAssetBalances[i]));
+            if (_spendAssets[i] != ETH_ADDRESS) {
+                require(IERC20(_spendAssets[i]).transferFrom(msg.sender, address(this), _spendAssetBalances[i]));
+            }
         }
 
         // EXECUTE CALLS
@@ -62,8 +67,18 @@ contract Stacker is Ownable {
 
         // Payout all balances to sender
         for (uint256 i = 0; i < trackedAssets.length; i++) {
-            uint256 balance = IERC20(trackedAssets[i]).balanceOf(address(this));
-            if (balance > 0) IERC20(trackedAssets[i]).transfer(msg.sender, balance);
+            uint256 balance;
+            if (trackedAssets[i] == ETH_ADDRESS) {
+                balance = payable(address(this)).balance;
+                if (balance > 0) {
+                    (bool success, ) = msg.sender.call{value: balance}("");
+                    require(success, "Eth transfer to sender failed");
+                }
+            }
+            else {
+                balance = IERC20(trackedAssets[i]).balanceOf(address(this));
+                if (balance > 0) IERC20(trackedAssets[i]).transfer(msg.sender, balance);
+            }
         }
 
         // TODO: make event
