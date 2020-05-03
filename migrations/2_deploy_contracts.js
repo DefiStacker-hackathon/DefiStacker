@@ -1,12 +1,10 @@
 const Stacker = artifacts.require("Stacker");
 const KyberAdapter = artifacts.require("KyberAdapter");
+const UniswapAdapter = artifacts.require("UniswapAdapter");
+
+const { GATEWAY_ADDRESSES } = require('../utils/constants');
 
 module.exports = function(deployer) {
-  const gateways = {
-    kyberProxy: '0x818E6FECD516Ecc3849DAf6845e3EC868087B755',
-    // other gateways 
-  }
-
   let stacker;
   deployer.deploy(Stacker)
     .then(instance => {
@@ -15,6 +13,11 @@ module.exports = function(deployer) {
 
   deployer.deploy(KyberAdapter)
     .then(instance => {
-      stacker.addAdapter(instance.address, gateways.kyberProxy);
+      stacker.addAdapter(instance.address, GATEWAY_ADDRESSES.KYBER);
+    });
+
+  deployer.deploy(UniswapAdapter)
+    .then(instance => {
+      stacker.addAdapter(instance.address, GATEWAY_ADDRESSES.UNISWAP);
     });
 };
