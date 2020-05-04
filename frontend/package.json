@@ -3,6 +3,7 @@
   "scripts": {
     "clean": "rimraf build coverage",
     "start": "parcel serve src/index.html",
+    "build": "parcel build src/index.html",
     "test": "jest --verbose",
     "precoverage": "rimraf coverage",
     "coverage": "yarn test --coverage",
