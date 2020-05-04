@@ -1,6 +1,22 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import * as ethers from "ethers";
+import { App } from "./App";
+import Context from "./context";
 
-const App: React.FC = () => <div>Hello world</div>;
+const url = "http://localhost:8545";
 
-ReactDOM.render(<App />, document.getElementById('app'));
+// Or if you are running the UI version, use this instead:
+// const url = "http://localhost:7545"
+
+const provider = new ethers.providers.JsonRpcProvider(url);
+const ctx = { provider };
+
+export const EthersContext = React.createContext(ctx);
+
+ReactDOM.render(
+  <Context.Provider value={ctx}>
+    <App />
+  </Context.Provider>,
+  document.getElementById("app")
+);
