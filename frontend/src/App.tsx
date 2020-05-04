@@ -1,5 +1,11 @@
 import * as React from "react";
 
-const App: React.FC = () => <div>Hello world</div>;
+import { ANTVersion } from "./components";
+
+const App: React.FC = () => (
+  <div>
+    <ANTVersion />
+  </div>
+);
 
 export { App };
