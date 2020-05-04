@@ -15,3 +15,5 @@ dist/
 
 # Allowed dot files
 !.gitignore
+!.babelrc
+!.lessrc
