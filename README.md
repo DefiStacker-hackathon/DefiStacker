@@ -2,7 +2,9 @@
 
 > DeFi Flash Loan Builder
 
-<!-- Badges -->
+[![Netlify Status](https://api.netlify.com/api/v1/badges/3234c434-1eff-4f22-b438-85b5157fbe13/deploy-status)](https://app.netlify.com/sites/defi-stacker/deploys)
+
+https://defi-stacker.netlify.app/
 
 A no-code flash loan builder with drag and drop GUI. \*Define your flash loan path, and then opt to queue it to execute when some condition is met (perhaps by listening to specified on & off-chain parameters - similar to a cron schedule). e.g. Only run the saved flash loan path once ETH is below \$200USD and DAI lending is above 2%.
 
