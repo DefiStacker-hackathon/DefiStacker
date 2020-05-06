@@ -12,8 +12,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.1.0",
+    "@popmotion/popcorn": "^0.4.4",
     "antd": "^4.2.0",
+    "array-move": "^2.2.1",
     "ethers": "^4.0.47",
+    "formik": "^2.1.4",
+    "framer-motion": "^1.10.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-use": "^14.2.0"
