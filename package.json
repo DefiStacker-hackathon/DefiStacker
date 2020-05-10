@@ -1,11 +1,5 @@
 {
-  "name": "defi-stacker",
-  "version": "0.0.1",
-  "description": "DeFi Stacker project for HackMoney hackathon",
-  "main": "index.js",
-  "repository": "git@github.com:DecentralizedPlanetarian/DefiStacker.git",
-  "author": "Sean Casey <sean@seanjcasey.com>",
-  "license": "MIT",
+  "private": true,
   "dependencies": {
     "@openzeppelin/contracts": "^3.0.1"
   }
