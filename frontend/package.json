@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "codegen": "ts-node --project codegen/tsconfig.json --transpile-only codegen",
     "clean": "rimraf build coverage",
     "start": "parcel serve src/index.html",
     "build": "parcel build src/index.html",
@@ -16,7 +17,7 @@
     "@popmotion/popcorn": "^0.4.4",
     "antd": "^4.2.0",
     "array-move": "^2.2.1",
-    "ethers": "^4.0.47",
+    "ethers": "^5.0.0-beta.186",
     "formik": "^2.1.4",
     "framer-motion": "^1.10.3",
     "react": "^16.13.1",
@@ -26,16 +27,20 @@
   "devDependencies": {
     "@babel/core": "^7.7.7",
     "@babel/preset-env": "^7.9.6",
+    "@types/glob": "^7.1.1",
     "@types/jest": "^25.2.1",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.7",
     "babel-plugin-import": "^1.13.0",
+    "glob": "^7.1.6",
     "jest": "^25.4.0",
     "less": "^3.11.1",
     "parcel-bundler": "^1.12.4",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "ts-jest": "^25.4.0",
+    "ts-morph": "^7.0.3",
+    "ts-node": "^8.10.1",
     "typescript": "^3.8.3"
   },
   "jest": {
@@ -49,5 +54,8 @@
       "js"
     ],
     "coverageDirectory": "coverage"
+  },
+  "codegen": {
+    "input": "../build"
   }
 }
