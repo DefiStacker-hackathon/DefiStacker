@@ -1,7 +1,7 @@
-import React from "react";
-import { Form } from ".";
-import { motion, useMotionValue } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import * as React from 'React';
+import { Form } from '.';
+import { motion, useMotionValue } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
 
 // Config
 const onTop = { zIndex: 1 };
@@ -9,7 +9,7 @@ const flat = {
   zIndex: 0,
   transition: { delay: 0.3 },
 };
-const maxHeight = "300px";
+const maxHeight = '300px';
 
 const Block = ({
   color,
@@ -51,9 +51,9 @@ const Block = ({
       style={{
         background: color,
         maxHeight,
-        width: "300px",
-        borderRadius: "3px",
-        marginBottom: "10px",
+        width: '300px',
+        borderRadius: '3px',
+        marginBottom: '10px',
       }}
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 1.12 }}

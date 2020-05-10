@@ -1,11 +1,11 @@
-import React from "react";
-import { Formik } from "formik";
+import * as React from 'React';
+import { Formik } from 'formik';
 
 const Form = () => (
   <div>
     <h1>I'm a form!!</h1>
     <Formik
-      initialValues={{ email: "", password: "" }}
+      initialValues={{ email: '', password: '' }}
       //   validate={(values) => {
       //     const errors = { email: "" };
       //     if (!values.email) {
