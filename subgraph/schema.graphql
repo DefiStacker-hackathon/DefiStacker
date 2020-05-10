@@ -1,0 +1,10 @@
+type Adapter @entity {
+  id: ID!
+  adapter: String!
+  gateway: String!
+}
+
+type Stacker @entity {
+  id: ID!
+  adapters: [Adapter!]!
+}
