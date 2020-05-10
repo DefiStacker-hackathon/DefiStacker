@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "scripts": {
+    "precodegen": "rimraf src/generated",
+    "codegen": "graph codegen subgraph.yaml --output-dir src/generated",
+    "create:local": "graph create defistacker/defistacker --node http://localhost:8020",
+    "predeploy:local": "yarn create:local || true",
+    "deploy:local": "graph deploy defistacker/defistacker subgraph.yaml --ipfs http://localhost:5001 --node http://localhost:8020",
+    "deploy": "graph deploy defistacker/defistacker subgraph.yaml --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "auth": "graph auth https://api.thegraph.com/deploy/",
+    "format": "prettier --write {src,scripts}/{*,**/*}.{ts,json,yaml}",
+    "lint": "yarn prettier --list-different {src,scripts}/{*,**/*}.{ts,json,yaml}"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.18.0",
+    "@graphprotocol/graph-ts": "^0.18.1",
+    "@types/node": "^13.11.1",
+    "assemblyscript": "^0.9.4",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "typescript": "^3.8.3"
+  }
+}

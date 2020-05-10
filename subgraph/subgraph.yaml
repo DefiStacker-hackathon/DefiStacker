@@ -1,0 +1,27 @@
+specVersion: 0.0.2
+description: DefiStacker
+repository: https://github.com/DefiStacker-hackathon/DefiStacker
+schema:
+  file: ./schema.graphql
+
+dataSources:
+  - name: Stacker
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: Stacker
+      address: '0xc25954eAaC62676Cf090ED3AE0B9d2BaDd2DC58C'
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mappings/Stacker.ts
+      entities: []
+      abis:
+        - name: Stacker
+          file: ../build/contracts/Stacker.json
+      eventHandlers:
+        - event: AdapterAdded(address,address)
+          handler: handleAdapterAdded
+        - event: AdapterRemoved(address,address)
+          handler: handleAdapterRemoved
