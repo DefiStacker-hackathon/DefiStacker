@@ -1,4 +1,4 @@
-import * as React from 'React';
+import * as React from 'react';
 import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
