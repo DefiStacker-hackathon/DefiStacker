@@ -1,8 +1,8 @@
-import * as React from 'React';
+import * as React from 'react';
 import { Form } from '.';
 import { motion, useMotionValue } from 'framer-motion';
-import { useEffect, useState, useRef } from 'react';
 
+const { useEffect, useState, useRef } = React;
 // Config
 const onTop = { zIndex: 1 };
 const flat = {

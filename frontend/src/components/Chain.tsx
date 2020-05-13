@@ -1,8 +1,9 @@
-import * as React from "react";
-import { Block } from ".";
-import { useState, useRef } from "react";
-import { findIndex, Position } from "../utils/find-index";
-import move from "array-move";
+import * as React from 'react';
+import { Block } from '.';
+import { findIndex, Position } from '../utils/find-index';
+import move from 'array-move';
+
+const { useState, useRef } = React;
 
 export const Chain = ({ blocks }: { blocks: string[] }) => {
   const [colors, setColors] = useState(blocks);
