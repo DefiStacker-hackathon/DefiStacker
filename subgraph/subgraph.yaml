@@ -10,7 +10,10 @@ dataSources:
     network: mainnet
     source:
       abi: Stacker
-      address: '0xc25954eAaC62676Cf090ED3AE0B9d2BaDd2DC58C'
+      #PASTE CONTRACT ADDRESS HERE INSTEAD OF EXAMPLE ADDRESS
+      address: '0x489A377ac4A22Abe345706f93b74622D381942E5'
+      #PASTE START BLOCK HERE INSTEAD OF 99999999
+      startBlock: 10056910
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
