@@ -3,7 +3,11 @@ const AaveAdapter = artifacts.require("AaveAdapter");
 const UniswapAdapter = artifacts.require("UniswapAdapter");
 const IERC20 = artifacts.require("IERC20");
 
-const { GATEWAY_ADDRESSES, TOKEN_ADDRESSES, UNISWAP_DAI_EXCHANGE } = require('../utils/constants');
+const {
+  ENCODING_SCHEMAS,
+  TOKEN_ADDRESSES,
+  UNISWAP_DAI_EXCHANGE
+} = require('../utils/constants');
 
 contract("AaveAdapter", accounts => {
   let daiContract;
@@ -30,13 +34,12 @@ contract("AaveAdapter", accounts => {
       const uniswapSrcToken = loanToken;
       const uniswapSrcAmount = web3.utils.toWei('100', 'ether');
       const uniswapDestToken = TOKEN_ADDRESSES.ETH;
-      const uniswapArgEncoding = ['address', 'uint256', 'address']; // TODO: move to constants?
       const uniswapCallArgs = web3.eth.abi.encodeParameters(
-        uniswapArgEncoding,
-        [uniswapSrcToken, uniswapSrcAmount, uniswapDestToken]
+        ENCODING_SCHEMAS.UNISWAP.TAKE_ORDER,
+        [uniswapSrcToken, uniswapSrcAmount, 0, uniswapDestToken]
       );
       const subsequentCalls = web3.eth.abi.encodeParameters(
-        ['address[]', 'string[]', 'bytes[]'], // Format of a stack of calls
+        ENCODING_SCHEMAS.AAVE.SUBSEQUENT_CALLS,
         [
           [uniswapAdapter],
           [uniswapCallSig],
@@ -47,9 +50,8 @@ contract("AaveAdapter", accounts => {
       // Compose call stack
       const callAdapter = AaveAdapter.address;
       const callSig = `takeFlashLoan(address,bytes)`;
-      const flashLoanArgEncoding = ['address', 'uint256', 'bytes']; // TODO: move to constants?
       const encodedCallArgs = web3.eth.abi.encodeParameters(
-        flashLoanArgEncoding,
+        ENCODING_SCHEMAS.AAVE.FLASH_LOAN,
         [loanToken, loanAmount, subsequentCalls],
       );
 
