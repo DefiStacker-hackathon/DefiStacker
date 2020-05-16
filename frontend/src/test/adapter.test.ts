@@ -5,8 +5,8 @@ describe("The Adapter interface", function() {
   it("creates an adapter", function() {
     const adapter: Adapter = {
       kind: AdapterKind.KYBER,
-      parameters: [],
-      arguments: [],
+      method: null,
+      args: [],
       outcome: true
     };
     expect(adapter.kind).toBe(AdapterKind.KYBER);
