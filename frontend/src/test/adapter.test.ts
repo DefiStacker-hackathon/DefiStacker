@@ -1,5 +1,5 @@
 import {describe, expect, it} from "@jest/globals";
-import { Adapter, AdapterKind } from "../lib/adapter";
+import { Adapter, AdapterKind } from "../lib/adapters/adapter";
 
 describe("The Adapter interface", function() {
   it("creates an adapter", function() {

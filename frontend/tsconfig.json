@@ -18,7 +18,8 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "removeComments": false,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "resolveJsonModule": true,
   },
   "include": ["src"]
 }
