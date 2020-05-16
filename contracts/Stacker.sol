@@ -33,7 +33,7 @@ contract Stacker is IStacker, Ownable {
 
     // CONSTANTS
 
-    address public constant override ETH_ADDRESS = address(0); // TODO: change this potentially
+    address public constant override ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     // STORAGE
 
