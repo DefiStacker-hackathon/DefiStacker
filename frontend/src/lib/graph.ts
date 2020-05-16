@@ -13,6 +13,60 @@ export interface Node<T> {
   value: T
 };
 
+export function createGraph<T>(): Graph<Node<T>, T> {
+  const graph: Graph<Node<T>, T> = {nodes: [], edges: []};
+  return graph;
+}
+
+export function createEdge<T>(
+  source: Node<T>,
+  destination: Node<T>,
+  requiredOutcome: boolean,
+): Edge<T> {
+  const edge: Edge<T> = {
+    source: source,
+    destination: destination,
+    requiredOutcome: requiredOutcome
+  };
+  return edge;
+}
+
+export function createNode<T>(value: T): Node<T> {
+  const node: Node<T> = {
+    value: value,
+  };
+  return node;
+}
+
+/**
+ * Returns a clone of `graph` with `edge` added to the graph's edges
+ * @param graph
+ * @param edge
+ */
+export function addEdge<T>(
+  graph: Graph<Node<T>, T>,
+  edge: Edge<T>
+): Graph<Node<T>, T> {
+  const nextGraph = graph;
+  nextGraph.edges.push(edge);
+  return nextGraph;
+}
+
+/**
+ * Returns a clone of `graph` with `node` added to the graph's nodes
+ * @param graph
+ * @param node
+ */
+export function addNode<T>(
+  graph: Graph<Node<T>, T>,
+  node: Node<T>
+): Graph<Node<T>, T> {
+  const nextGraph = graph;
+  nextGraph.nodes.push(node);
+  return nextGraph;
+}
+
+
 // TODO: I think for now it's a good idea to start with simple
 // serialization but the size will quickly become larger than needed
 // so we should slim this down.
