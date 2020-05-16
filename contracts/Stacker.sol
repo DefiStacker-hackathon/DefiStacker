@@ -1,19 +1,52 @@
-pragma solidity ^0.6.4;
+pragma solidity ^0.6.6;
 pragma experimental ABIEncoderV2;
 
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "../node_modules/@openzeppelin/contracts/math/SafeMath.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "../node_modules/@openzeppelin/contracts/utils/EnumerableSet.sol";
+import "./IStacker.sol";
 
-contract Stacker is Ownable {
-    // TODO: add ExecuteStack and ExecuteCall events
+contract Stacker is IStacker, Ownable {
+    using SafeERC20 for IERC20;
+    using SafeMath for uint256;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     event AdapterAdded(address adapter, address gateway);
 
     event AdapterRemoved(address adapter, address gateway);
 
-    mapping (address => address) public adapterToGateway;
+    // TODO: determine if we need this event
+    // event CallExecuted
 
-    address constant ETH_ADDRESS = address(0); // TODO: change this potentially
+    event StackExecuted(
+        address indexed sender,
+        address[] spendAssets,
+        uint256[] spendAssetBalances,
+        address[] callAdapters,
+        string[] callSigs,
+        bytes[] callArgs,
+        address[] paidOutAssets,
+        uint256[] paidOutAmounts
+    );
+
+    // CONSTANTS
+
+    address public constant override ETH_ADDRESS = address(0); // TODO: change this potentially
+
+    // STORAGE
+
+    mapping (address => address) public adapterToGateway;
+    EnumerableSet.AddressSet internal adapters;
+    EnumerableSet.AddressSet internal usedAssets;
+
+    // MODIFIERS
+
+    modifier onlyDelegated() {
+        require(msg.sender == address(this), "Sender must be this contract");
+        _;
+    }
 
     // EXTERNAL FUNCTIONS
 
@@ -21,68 +54,75 @@ contract Stacker is Ownable {
     receive() external payable {}
 
     function addAdapter(address _adapter, address _gateway) external onlyOwner {
+        require(EnumerableSet.add(adapters, _adapter), "addAdapter: Adapter already added");
         adapterToGateway[_adapter] = _gateway;
 
         emit AdapterAdded(_adapter, _gateway);
     }
 
-    /// @dev All `call-` prefixed param arrays are the same length, and each index represents a call in the stack
-    function executeStack(
-        address[] calldata _spendAssets,
-        uint256[] calldata _spendAssetBalances,
-        address[] calldata _callAdapters,
-        string[] calldata _callSigs,
-        bytes[] calldata _callArgs
+    /// @dev This is for flash loan hooks to run.
+    /// _spendAssets are the flash loaned assets.
+    /// Last call in the stack should be to pay back the flash loan.
+    function executeStackNoPayout(
+        address[] memory _spendAssets,
+        uint256[] memory _spendAssetBalances,
+        address[] memory _callAdapters,
+        string[] memory _callSigs,
+        bytes[] memory _callArgs
     )
-        external
+        public // TODO: Getting stack error when `external`
+        override
         payable
     {
-        // INPUT VALIDATION
+        // Only adapter can make this call
+        require(
+            EnumerableSet.contains(adapters, msg.sender),
+            "executeStackNoPayout: Only an adapter can call this function"
+        );
 
-        // TODO: add reason strings
-        require(_callAdapters.length == _callSigs.length);
-        require(_callAdapters.length == _callArgs.length);
-        // TODO: validate no empty values for call args
+        __custodyAssets(_spendAssets, _spendAssetBalances);
+        __executeCalls(_callAdapters, _callSigs, _callArgs);
+    }
 
-        // CUSTODY SPEND ASSETS
+    /// @dev All `call-` prefixed param arrays are the same length, and each index represents a call in the stack
+    function executeStack(
+        address[] memory _spendAssets,
+        uint256[] memory _spendAssetBalances,
+        address[] memory _callAdapters,
+        string[] memory _callSigs,
+        bytes[] memory _callArgs
+    )
+        public // TODO: Getting stack error when `external`
+        override
+        payable
+    {
+        __validateExecuteStackInputs(
+            _spendAssets,
+            _spendAssetBalances,
+            _callAdapters,
+            _callSigs,
+            _callArgs
+        );
 
-        for (uint256 i = 0; i < _spendAssets.length; i++) {
-            if (_spendAssets[i] != ETH_ADDRESS) {
-                require(IERC20(_spendAssets[i]).transferFrom(msg.sender, address(this), _spendAssetBalances[i]));
-            }
-        }
+        __custodyAssets(_spendAssets, _spendAssetBalances);
 
-        // EXECUTE CALLS
+        __executeCalls(_callAdapters, _callSigs, _callArgs);
 
-        address[] memory trackedAssets = _spendAssets;
-        for (uint256 i = 0; i < _callAdapters.length; i++) {
-            address[] memory receivedAssets = __executeCall(
-                _callAdapters[i],
-                _callSigs[i],
-                _callArgs[i],
-                trackedAssets
-            );
-            trackedAssets = __concatArrays(trackedAssets, receivedAssets);
-        }
+        (
+            address[] memory paidOutAssets,
+            uint256[] memory paidOutAmounts
+        ) = __payoutBalances();
 
-        // Payout all balances to sender
-        for (uint256 i = 0; i < trackedAssets.length; i++) {
-            uint256 balance;
-            if (trackedAssets[i] == ETH_ADDRESS) {
-                balance = payable(address(this)).balance;
-                if (balance > 0) {
-                    (bool success, ) = msg.sender.call{value: balance}("");
-                    require(success, "Eth transfer to sender failed");
-                }
-            }
-            else {
-                balance = IERC20(trackedAssets[i]).balanceOf(address(this));
-                if (balance > 0) IERC20(trackedAssets[i]).transfer(msg.sender, balance);
-            }
-        }
-
-        // TODO: make event
-        // emit StackExecuted();
+        emit StackExecuted(
+            msg.sender,
+            _spendAssets,
+            _spendAssetBalances,
+            _callAdapters,
+            _callSigs,
+            _callArgs,
+            paidOutAssets,
+            paidOutAmounts
+        );
     }
 
     function removeAdapter(address _adapter) external onlyOwner {
@@ -94,47 +134,129 @@ contract Stacker is Ownable {
 
     // PRIVATE FUNCTIONS
 
-    // TODO: Find more efficient way to do this... unsure if only adding unique values (removing duplicates) would be more or less efficient
-    function __concatArrays(address[] memory _array1, address[] memory _array2)
-        private
-        pure
-        returns (address[] memory)
-    {
-        uint256 newArrayLength = _array1.length + _array2.length;
-        address[] memory newArray = new address[](newArrayLength);
-        for (uint256 i = 0; i < _array1.length; i++) {
-            newArray[i] = _array1[i];
+    function __custodyAssets(address[] memory _assets, uint256[] memory _amounts) private {
+        for (uint256 i = 0; i < _assets.length; i++) {
+            if (_assets[i] == ETH_ADDRESS) {
+                require(
+                    payable(address(this)).balance >= _amounts[i],
+                    "executeStack: Not enough ETH sent"
+                );
+            }
+            else {
+                IERC20(_assets[i]).safeTransferFrom(
+                    msg.sender,
+                    address(this),
+                    _amounts[i]
+                );
+            }
+            EnumerableSet.add(usedAssets, _assets[i]);
         }
-        for (uint256 i = 0; i < _array2.length; i++) {
-            newArray[_array1.length + i] = _array2[i];
-        }
-
-        return newArray;
     }
 
-    function __executeCall(
-        address _adapter,
-        string memory _sig,
-        bytes memory _callArgs,
-        address[] memory _trackedAssets
+    function __executeCalls(
+        address[] memory _callAdapters,
+        string[] memory _callSigs,
+        bytes[] memory _callArgs
     )
         private
-        returns (address[] memory)
     {
-        (
-            bool success,
-            bytes memory returnData
-        ) = _adapter.delegatecall(abi.encodeWithSignature(
-            _sig,
-            adapterToGateway[_adapter],
-            _callArgs,
-            _trackedAssets
-        ));
-        require(success, string(returnData));
+        for (uint256 i = 0; i < _callAdapters.length; i++) {
+            (
+                bool success,
+                bytes memory returnData
+            ) = _callAdapters[i].delegatecall(abi.encodeWithSignature(
+                _callSigs[i],
+                adapterToGateway[_callAdapters[i]],
+                _callArgs[i]
+            ));
+            require(success, string(returnData));
 
-        // TODO: make event
-        // emit CallExecuted();
+            // Update usedAssets with assets received in call
+            address[] memory receivedAssets = abi.decode(returnData, (address[]));
+            for (uint256 j = 0; j < receivedAssets.length; j++) {
+                EnumerableSet.add(usedAssets, receivedAssets[j]);
+            }
 
-        return abi.decode(returnData, (address[]));
+            // TODO: need call level event?
+        }
+    }
+
+    function __payoutBalances()
+        private
+        returns (address[] memory paidOutAssets_, uint256[] memory paidOutAmounts_)
+    {
+        uint256 assetsCount = EnumerableSet.length(usedAssets);
+        address[] memory assets = new address[](assetsCount);
+        uint256[] memory balances = new uint256[](assetsCount);
+
+        // Calc assets to pay and store assets and balances in memory
+        uint256 assetsToPayCount;
+        for (uint256 i = 0; i < assetsCount; i++) {
+            address asset = EnumerableSet.at(usedAssets, i);
+            assets[i] = asset;
+
+            uint256 balance;
+            if (asset == ETH_ADDRESS) {
+                balance = payable(address(this)).balance;
+            }
+            else {
+                balance = IERC20(asset).balanceOf(address(this));
+            }
+
+            if (balance > 0) {
+                balances[i] = balance;
+                assetsToPayCount++;
+            }
+        }
+        paidOutAssets_ = new address[](assetsToPayCount);
+        paidOutAmounts_ = new uint256[](assetsToPayCount);
+
+        // Pay out assets
+        uint256 paidAssetsCount;
+        for (uint256 i = 0; i < assetsCount; i++) {
+            address asset = assets[i];
+            uint256 balance = balances[i];
+
+            EnumerableSet.remove(usedAssets, asset);
+            if (balance == 0) continue;
+
+            if (asset == ETH_ADDRESS) {
+                (bool success,) = msg.sender.call{value: balance}("");
+                require(success, "__payoutBalances: Eth transfer to sender failed");
+            }
+            else {
+                IERC20(asset).safeTransfer(msg.sender, balance);
+            }
+
+            // Add to return values
+            paidOutAssets_[paidAssetsCount] = asset;
+            paidOutAmounts_[paidAssetsCount] = balance;       
+            paidAssetsCount++;
+        }
+        assert(EnumerableSet.length(usedAssets) == 0);
+    }
+
+    function __validateExecuteStackInputs(
+        address[] memory _spendAssets,
+        uint256[] memory _spendAssetBalances,
+        address[] memory _callAdapters,
+        string[] memory _callSigs,
+        bytes[] memory _callArgs
+    )
+        private
+        pure
+    {
+        require(
+            _callAdapters.length == _callSigs.length,
+            "__validateExecuteStackInputs: _callAdapters and _callSigs unequal lengths"
+        );
+        require(
+            _callAdapters.length == _callArgs.length,
+            "__validateExecuteStackInputs: _callAdapters and _callArgs unequal lengths"
+        );
+        require(
+            _spendAssets.length == _spendAssetBalances.length,
+            "__validateExecuteStackInputs: _spendAssets and _spendAssetBalances unequal lengths"
+        );
     }
 }
