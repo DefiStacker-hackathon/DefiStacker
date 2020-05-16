@@ -8,13 +8,31 @@ const GATEWAY_ADDRESSES = {
 
 const TOKEN_ADDRESSES = {
   DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
-  ETH: EMPTY_ADDRESS
+  ETH: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 };
 
 const UNISWAP_DAI_EXCHANGE = '0x2a1530C4C41db0B0b2bB646CB5Eb1A67b7158667';
 
+const ENCODING_SCHEMAS = {
+  AAVE: {
+    // reserve, amount, SUBSEQUENT_CALLS
+    FLASH_LOAN: ['address', 'uint256', 'bytes'],
+    // callAdapters, callSigs, callArgs
+    SUBSEQUENT_CALLS: ['address[]', 'string[]', 'bytes[]']
+  },
+  KYBER: {
+    // srcToken, srcAmount, srcPercentage, destAmount
+    TAKE_ORDER: ['address', 'uint256', 'uint256', 'address'],
+  },
+  UNISWAP: {
+    // srcToken, srcAmount, srcPercentage, destAmount
+    TAKE_ORDER: ['address', 'uint256', 'uint256', 'address']
+  }
+}
+
 module.exports = {
   EMPTY_ADDRESS,
+  ENCODING_SCHEMAS,
   GATEWAY_ADDRESSES,
   TOKEN_ADDRESSES,
   UNISWAP_DAI_EXCHANGE
