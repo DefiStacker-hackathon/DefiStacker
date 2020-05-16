@@ -1,6 +1,24 @@
 import {describe, expect, it} from "@jest/globals";
 
-import { Edge, Node, serializeNode, serializeEdge } from "../lib/graph";
+import { Adapter } from "../lib/adapters/adapter";
+import { Edge, Node, addNode, createGraph, createNode, serializeNode, serializeEdge } from "../lib/graph";
+
+describe("createGraph", function() {
+  it("should return a new empty graph", function() {
+    expect(createGraph<Adapter>()).toStrictEqual({nodes: [], edges:[]});
+  });
+});
+
+describe("addNode", function() {
+  it("should return a copy of the given graph with an additional node", function() {
+    const graph_1 = createGraph<string>();
+    const node = createNode<string>("A");
+    const graph_2 = addNode(graph_1, node);
+    expect(graph_2.edges).toStrictEqual(graph_1.edges);
+    expect(graph_2.nodes.length).toBeGreaterThan(graph_1.nodes.length);
+    expect(graph_2.nodes).toStrictEqual([node]);
+  })
+});
 
 describe("serializeNode", function() {
   it("should return a JSON stringified node", function() {

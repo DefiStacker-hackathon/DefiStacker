@@ -1,3 +1,5 @@
+import produce from "immer";
+
 export interface Graph<Node, NodeValue> {
   nodes: Array<Node>;
   edges: Array<Edge<NodeValue>>;
@@ -16,6 +18,10 @@ export interface Node<T> {
 export function createGraph<T>(): Graph<Node<T>, T> {
   const graph: Graph<Node<T>, T> = {nodes: [], edges: []};
   return graph;
+}
+
+export function cloneGraph<T>(graph: Graph<Node<T>, T>): Graph<Node<T>, T> {
+  return produce(graph, draft => {});
 }
 
 export function createEdge<T>(
@@ -47,9 +53,9 @@ export function addEdge<T>(
   graph: Graph<Node<T>, T>,
   edge: Edge<T>
 ): Graph<Node<T>, T> {
-  const nextGraph = graph;
-  nextGraph.edges.push(edge);
-  return nextGraph;
+  return produce<Graph<Node<T>, T>, Graph<Node<T>, T>>(graph, draft => {
+    draft.edges.push(edge);
+  });
 }
 
 /**
@@ -59,11 +65,11 @@ export function addEdge<T>(
  */
 export function addNode<T>(
   graph: Graph<Node<T>, T>,
-  node: Node<T>
+  node: Node<T> 
 ): Graph<Node<T>, T> {
-  const nextGraph = graph;
-  nextGraph.nodes.push(node);
-  return nextGraph;
+  return produce<Graph<Node<T>, T>, Graph<Node<T>, T>>(graph, draft => {
+    draft.nodes.push(node);
+  });
 }
 
 
