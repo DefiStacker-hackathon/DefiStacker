@@ -1,4 +1,4 @@
-documents: frontend/**/*.graphql
+documents: src/**/*.graphql
 schema: http://localhost:8000/subgraphs/name/defistacker/defistacker
 config:
   namingConvention:
@@ -6,7 +6,7 @@ config:
     typeNames: pascal-case#pascalCase
     enumValues: upper-case#upperCase
 generates:
-  frontend/build:
+  src/:
     preset: near-operation-file
     presetConfig:
       baseTypesPath: 'subgraph.ts'
@@ -17,7 +17,7 @@ generates:
     config:
       withComponent: false
       withHooks: true
-  subgraph/subgraph.ts:
+  src/subgraph.ts:
     plugins:
       #   - add: "import BigNumber from 'bignumber.js'"
       - typescript
