@@ -14,6 +14,6 @@ export const takeFlashLoan = <AdapterMethod>{
 export const payBackFlashLoan = <AdapterMethod>{
   label: "payBackFlashLoan",
   raw: getAbiFunction(AaveAdapterJson.abi, "payBackFlashLoan"),
-  parameters: ["gatewayAddress", "tokenYouBorrowed", "amountDue"],
+  parameters: ["", "tokenYouBorrowed", "amountDue"],
   description: "Repay the borrowed flash loan amount",
 };

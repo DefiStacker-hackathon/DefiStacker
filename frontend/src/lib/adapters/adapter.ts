@@ -6,6 +6,7 @@ export interface Adapter {
 };
 
 export enum AdapterKind {
+  AAVE = "aave",
   KYBER = "kyber",
   UNISWAP_1 = "uniswap_1",
   UNISWAP_2 = "uniswap_2",
