@@ -76,9 +76,70 @@ export class OwnershipTransferred__Params {
   }
 }
 
+export class StackExecuted extends ethereum.Event {
+  get params(): StackExecuted__Params {
+    return new StackExecuted__Params(this);
+  }
+}
+
+export class StackExecuted__Params {
+  _event: StackExecuted;
+
+  constructor(event: StackExecuted) {
+    this._event = event;
+  }
+
+  get sender(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get spendAssets(): Array<Address> {
+    return this._event.parameters[1].value.toAddressArray();
+  }
+
+  get spendAssetBalances(): Array<BigInt> {
+    return this._event.parameters[2].value.toBigIntArray();
+  }
+
+  get callAdapters(): Array<Address> {
+    return this._event.parameters[3].value.toAddressArray();
+  }
+
+  get callSigs(): Array<string> {
+    return this._event.parameters[4].value.toStringArray();
+  }
+
+  get callArgs(): Array<Bytes> {
+    return this._event.parameters[5].value.toBytesArray();
+  }
+
+  get paidOutAssets(): Array<Address> {
+    return this._event.parameters[6].value.toAddressArray();
+  }
+
+  get paidOutAmounts(): Array<BigInt> {
+    return this._event.parameters[7].value.toBigIntArray();
+  }
+}
+
 export class Stacker extends ethereum.SmartContract {
   static bind(address: Address): Stacker {
     return new Stacker("Stacker", address);
+  }
+
+  ETH_ADDRESS(): Address {
+    let result = super.call("ETH_ADDRESS", "ETH_ADDRESS():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_ETH_ADDRESS(): ethereum.CallResult<Address> {
+    let result = super.tryCall("ETH_ADDRESS", "ETH_ADDRESS():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   adapterToGateway(param0: Address): Address {
@@ -206,6 +267,52 @@ export class AddAdapterCall__Outputs {
   _call: AddAdapterCall;
 
   constructor(call: AddAdapterCall) {
+    this._call = call;
+  }
+}
+
+export class ExecuteStackNoPayoutCall extends ethereum.Call {
+  get inputs(): ExecuteStackNoPayoutCall__Inputs {
+    return new ExecuteStackNoPayoutCall__Inputs(this);
+  }
+
+  get outputs(): ExecuteStackNoPayoutCall__Outputs {
+    return new ExecuteStackNoPayoutCall__Outputs(this);
+  }
+}
+
+export class ExecuteStackNoPayoutCall__Inputs {
+  _call: ExecuteStackNoPayoutCall;
+
+  constructor(call: ExecuteStackNoPayoutCall) {
+    this._call = call;
+  }
+
+  get _spendAssets(): Array<Address> {
+    return this._call.inputValues[0].value.toAddressArray();
+  }
+
+  get _spendAssetBalances(): Array<BigInt> {
+    return this._call.inputValues[1].value.toBigIntArray();
+  }
+
+  get _callAdapters(): Array<Address> {
+    return this._call.inputValues[2].value.toAddressArray();
+  }
+
+  get _callSigs(): Array<string> {
+    return this._call.inputValues[3].value.toStringArray();
+  }
+
+  get _callArgs(): Array<Bytes> {
+    return this._call.inputValues[4].value.toBytesArray();
+  }
+}
+
+export class ExecuteStackNoPayoutCall__Outputs {
+  _call: ExecuteStackNoPayoutCall;
+
+  constructor(call: ExecuteStackNoPayoutCall) {
     this._call = call;
   }
 }
