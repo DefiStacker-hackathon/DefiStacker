@@ -18,3 +18,4 @@ dist/
 !.babelrc
 !.lessrc
 !.prettierrc
+!.env.example
