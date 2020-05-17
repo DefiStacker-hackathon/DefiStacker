@@ -17,11 +17,20 @@ contract Stacker is IStacker, Ownable {
 
     event AdapterRemoved(address adapter, address gateway);
 
-    // TODO: determine if we need this event
-    // event CallExecuted
+    event CallExecuted(
+        uint256 stackId,
+        address callAdapter,
+        string callSig,
+        bytes callArgs,
+        address[] incomingAssets,
+        uint256[] incomingAmounts,
+        address[] outgoingAssets,
+        uint256[] outgoingAmounts
+    );
 
     event StackExecuted(
         address indexed sender,
+        uint256 stackId,
         address[] spendAssets,
         uint256[] spendAssetBalances,
         address[] callAdapters,
@@ -37,6 +46,7 @@ contract Stacker is IStacker, Ownable {
 
     // STORAGE
 
+    uint256 public stackId;
     mapping (address => address) public adapterToGateway;
     EnumerableSet.AddressSet internal adapters;
     EnumerableSet.AddressSet internal usedAssets;
@@ -115,6 +125,7 @@ contract Stacker is IStacker, Ownable {
 
         emit StackExecuted(
             msg.sender,
+            stackId,
             _spendAssets,
             _spendAssetBalances,
             _callAdapters,
@@ -123,6 +134,9 @@ contract Stacker is IStacker, Ownable {
             paidOutAssets,
             paidOutAmounts
         );
+
+        // Increment stackId
+        stackId++;
     }
 
     function removeAdapter(address _adapter) external onlyOwner {
@@ -153,6 +167,46 @@ contract Stacker is IStacker, Ownable {
         }
     }
 
+    function __executeCall(
+        address _callAdapter,
+        string memory _callSig,
+        bytes memory _callArgs
+    )
+        private
+    {
+        // Record balances prior to call
+        uint256[] memory preBalances = __preProcessCall();
+
+        // Make the call
+        (
+            bool success,
+            bytes memory returnData
+        ) = _callAdapter.delegatecall(
+            abi.encodeWithSignature(_callSig, adapterToGateway[_callAdapter], _callArgs)
+        );
+        require(success, string(returnData));
+        address[] memory receivedAssets = abi.decode(returnData, (address[]));
+
+        // Post-process call to get incoming/outgoing assets
+        (
+            address[] memory incomingAssets,
+            uint256[] memory incomingAmounts,
+            address[] memory outgoingAssets,
+            uint256[] memory outgoingAmounts
+        ) = __postProcessCall(preBalances, receivedAssets);
+
+        emit CallExecuted(
+            stackId,
+            _callAdapter,
+            _callSig,
+            _callArgs,
+            incomingAssets,
+            incomingAmounts,
+            outgoingAssets,
+            outgoingAmounts
+        );
+    }
+
     function __executeCalls(
         address[] memory _callAdapters,
         string[] memory _callSigs,
@@ -161,23 +215,7 @@ contract Stacker is IStacker, Ownable {
         private
     {
         for (uint256 i = 0; i < _callAdapters.length; i++) {
-            (
-                bool success,
-                bytes memory returnData
-            ) = _callAdapters[i].delegatecall(abi.encodeWithSignature(
-                _callSigs[i],
-                adapterToGateway[_callAdapters[i]],
-                _callArgs[i]
-            ));
-            require(success, string(returnData));
-
-            // Update usedAssets with assets received in call
-            address[] memory receivedAssets = abi.decode(returnData, (address[]));
-            for (uint256 j = 0; j < receivedAssets.length; j++) {
-                EnumerableSet.add(usedAssets, receivedAssets[j]);
-            }
-
-            // TODO: need call level event?
+            __executeCall(_callAdapters[i], _callSigs[i], _callArgs[i]);
         }
     }
 
@@ -234,6 +272,101 @@ contract Stacker is IStacker, Ownable {
             paidAssetsCount++;
         }
         assert(EnumerableSet.length(usedAssets) == 0);
+    }
+
+    function __preProcessCall() private view returns (uint256[] memory preBalances_) {
+        preBalances_ = new uint256[](EnumerableSet.length(usedAssets));
+        for (uint256 i = 0; i < preBalances_.length; i++) {
+            address asset = EnumerableSet.at(usedAssets, i);
+            if (asset == ETH_ADDRESS) {
+                preBalances_[i] = payable(address(this)).balance;
+            }
+            else {
+                preBalances_[i] = IERC20(asset).balanceOf(address(this));
+            }
+        }
+    }
+
+    function __postProcessCall(
+        uint256[] memory preBalances,
+        address[] memory receivedAssets
+    )
+        private
+        returns (
+            address[] memory incomingAssets_,
+            uint256[] memory incomingAmounts_,
+            address[] memory outgoingAssets_,
+            uint256[] memory outgoingAmounts_
+        )
+    {
+        // Get balance diffs of old assets
+        uint256[] memory balanceDiffs = new uint256[](preBalances.length);
+        bool[] memory areOutgoingAssets = new bool[](preBalances.length);
+        uint256 outgoingAssetsCount;
+        uint256 incomingAssetsCount;
+        for (uint256 i = 0; i < preBalances.length; i++) {
+            address asset = EnumerableSet.at(usedAssets, i);
+            uint256 balance;
+            if (asset == ETH_ADDRESS) {
+                balance = payable(address(this)).balance;
+            }
+            else {
+                balance = IERC20(asset).balanceOf(address(this));
+            }
+            if (balance > preBalances[i]) {
+                balanceDiffs[i] = balance.sub(preBalances[i]);
+                incomingAssetsCount++;
+            }
+            else if (balance < preBalances[i]) {
+                balanceDiffs[i] = preBalances[i].sub(balance);
+                outgoingAssetsCount++;
+                areOutgoingAssets[i] = true;
+            }
+        }
+
+        // Add received assets to incoming/outgoing asset counts
+        uint256 newAssetsCount;
+        for (uint256 i = 0; i < receivedAssets.length; i++) {
+            if (!EnumerableSet.contains(usedAssets, receivedAssets[i])) {
+                newAssetsCount++;
+            }
+        }
+
+        // Construct incoming/outgoing asset arrays
+        incomingAssets_ = new address[](incomingAssetsCount.add(newAssetsCount));
+        incomingAmounts_ = new uint256[](incomingAssetsCount.add(newAssetsCount));
+        outgoingAssets_ = new address[](outgoingAssetsCount);
+        outgoingAmounts_ = new uint256[](outgoingAssetsCount);
+        for (uint256 i = 0; i < preBalances.length; i++) {
+            if (balanceDiffs[i] == 0) continue;
+            if (areOutgoingAssets[i]) {
+                outgoingAssets_[i] = EnumerableSet.at(usedAssets, i);
+                outgoingAmounts_[i] = balanceDiffs[i];
+            }
+            else {
+                incomingAssets_[i] = EnumerableSet.at(usedAssets, i);
+                incomingAmounts_[i] = balanceDiffs[i];
+            }
+        }
+
+        // Update usedAssets with assets received in call, and add to incoming/outgoing assets
+        uint256 receivedAssetsAddedCount;
+        for (uint256 i = 0; i < receivedAssets.length; i++) {
+            uint256 index = incomingAssetsCount.add(receivedAssetsAddedCount);
+            address asset = receivedAssets[i];
+            uint256 balance;
+            if (asset == ETH_ADDRESS) {
+                balance = payable(address(this)).balance;
+            }
+            else {
+                balance = IERC20(asset).balanceOf(address(this));
+            }
+            incomingAssets_[index] = asset;
+            incomingAmounts_[index] = balance;
+            receivedAssetsAddedCount++;
+
+            EnumerableSet.add(usedAssets, asset);
+        }
     }
 
     function __validateExecuteStackInputs(
