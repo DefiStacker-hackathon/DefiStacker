@@ -23,7 +23,7 @@ export function createAdapter(
   kind: AdapterKind,
   method: AdapterMethod,
   args: Array<string>,
-  outcome: boolean
+  outcome: boolean = true
 ): Adapter {
   const adapter: Adapter = {
     kind: kind,
