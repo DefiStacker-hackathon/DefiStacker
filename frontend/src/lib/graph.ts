@@ -3,6 +3,7 @@ enableMapSet();
 
 export interface Graph<Node, T> {
   nodes: Map<T, Node>; // Good to use timestamp as key
+  // TODO: Since we aren't doing branching, we can change this to Map<T, Array<T>>
   incomingAdjacency: Map<T, Map<T, boolean>>;
 };
 
