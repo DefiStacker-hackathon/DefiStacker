@@ -1,42 +1,38 @@
-import produce from "immer";
+import produce, { enableMapSet } from "immer";
+enableMapSet();
 
-export interface Graph<Node, NodeValue> {
-  nodes: Array<Node>;
-  edges: Array<Edge<NodeValue>>;
+export interface Graph<Node, T> {
+  nodes: Map<T, Node>; // Good to use timestamp as key
+  incomingAdjacency: Map<T, Map<T, boolean>>;
 };
 
-export interface Edge<T> {
-  source: Node<T>;
-  destination: Node<T>;
-  requiredOutcome: boolean;
+export interface Node<V> {
+  value: V
 };
 
-export interface Node<T> {
-  value: T
-};
-
-export function createGraph<T>(): Graph<Node<T>, T> {
-  const graph: Graph<Node<T>, T> = {nodes: [], edges: []};
+/**
+ * Returns a new empty graph.
+ */
+export function createGraph<T, V>(): Graph<Node<V>, T> {
+  const graph: Graph<Node<V>, T> = {
+    nodes: new Map(),
+    incomingAdjacency: new Map(),
+  };
   return graph;
-}
+};
 
-export function cloneGraph<T>(graph: Graph<Node<T>, T>): Graph<Node<T>, T> {
+/**
+ * Returns a new graph with the same values as `graph`.
+ * @param graph
+ */
+export function cloneGraph<T, V>(graph: Graph<Node<V>, T>): Graph<Node<V>, T> {
   return produce(graph, draft => {});
 }
 
-export function createEdge<T>(
-  source: Node<T>,
-  destination: Node<T>,
-  requiredOutcome: boolean,
-): Edge<T> {
-  const edge: Edge<T> = {
-    source: source,
-    destination: destination,
-    requiredOutcome: requiredOutcome
-  };
-  return edge;
-}
-
+/**
+ * Returns a new node with value as `value`.
+ * @param value 
+ */
 export function createNode<T>(value: T): Node<T> {
   const node: Node<T> = {
     value: value,
@@ -45,17 +41,11 @@ export function createNode<T>(value: T): Node<T> {
 }
 
 /**
- * Returns a clone of `graph` with `edge` added to the graph's edges
- * @param graph
- * @param edge
+ * Returns a new node with the same values as `node`.
+ * @param node
  */
-export function addEdge<T>(
-  graph: Graph<Node<T>, T>,
-  edge: Edge<T>
-): Graph<Node<T>, T> {
-  return produce<Graph<Node<T>, T>, Graph<Node<T>, T>>(graph, draft => {
-    draft.edges.push(edge);
-  });
+export function cloneNode<T>(node: Node<T>): Node<T> {
+  return produce(node, draff => {});
 }
 
 /**
@@ -63,38 +53,28 @@ export function addEdge<T>(
  * @param graph
  * @param node
  */
-export function addNode<T>(
-  graph: Graph<Node<T>, T>,
-  node: Node<T> 
-): Graph<Node<T>, T> {
-  return produce<Graph<Node<T>, T>, Graph<Node<T>, T>>(graph, draft => {
-    draft.nodes.push(node);
+export function addNode<T, V>(
+  graph: Graph<Node<V>, T>,
+  key: T,
+  node: Node<V> 
+): Graph<Node<V>, T> {
+  return produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
+    draft.nodes.set(key, node);
   });
 }
 
-
-// TODO: I think for now it's a good idea to start with simple
-// serialization but the size will quickly become larger than needed
-// so we should slim this down.
-
-export const serializeNode = function(node: Node<any>): string {
-  return JSON.stringify(node);
-}
-
-export const serializeEdge = function(edge: Edge<any>): string {
-  return JSON.stringify(edge)
-}
-
-export const getTopologicalSortOrder = function(
-  graph: Graph<Node<any>, any>
-): Array<Node<any>> {
-  // TODO
-  return graph.nodes;
-}
-
-export const getRoot = function(
-  graph: Graph<Node<any>, any>
-): Node<any> {
-  // TODO
-  return graph.nodes[0];
+/**
+ * Returns keys of nodes in graph that have no incoming edges.
+ * @param graph 
+ */
+export function getIndegree0<T, V>(
+  graph: Graph<Node<V>, T>
+): Array<T> {
+  const indegree0: Array<T> = [];
+  for (let [k, v] of graph.incomingAdjacency) {
+    if (v == undefined) {
+      indegree0.push(k);
+    }
+  }
+  return indegree0;
 }
