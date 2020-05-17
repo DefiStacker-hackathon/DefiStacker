@@ -1,5 +1,8 @@
 {
   "contracts": {
-    "Stacker": "Stacker"
+    "Stacker": "Stacker",
+    "AaveAdapter": "AaveAdapter",
+    "KyberAdapter": "KyberAdapter",
+    "UniswapAdapter": "UniswapAdapter"
   }
 }

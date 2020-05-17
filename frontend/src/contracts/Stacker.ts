@@ -9,14 +9,24 @@ export class Stacker extends Contract {
     "event AdapterAdded(address adapter, address gateway)",
     "event AdapterRemoved(address adapter, address gateway)",
     "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+    "event StackExecuted(address indexed sender, address[] spendAssets, uint256[] spendAssetBalances, address[] callAdapters, string[] callSigs, bytes[] callArgs, address[] paidOutAssets, uint256[] paidOutAmounts)",
+    "function ETH_ADDRESS() view returns (address)",
     "function adapterToGateway(address) view returns (address)",
     "function owner() view returns (address)",
     "function renounceOwnership()",
     "function transferOwnership(address newOwner)",
     "function addAdapter(address _adapter, address _gateway)",
+    "function executeStackNoPayout(address[] _spendAssets, uint256[] _spendAssetBalances, address[] _callAdapters, string[] _callSigs, bytes[] _callArgs) payable",
     "function executeStack(address[] _spendAssets, uint256[] _spendAssetBalances, address[] _callAdapters, string[] _callSigs, bytes[] _callArgs) payable",
     "function removeAdapter(address _adapter)",
   ];
+  /**
+   * ```solidity
+   * function ETH_ADDRESS() view returns (address)
+   * ```
+   *
+   */
+  ETH_ADDRESS: ($$overrides?: ethers.CallOverrides) => Promise<string>;
   /**
    * ```solidity
    * function adapterToGateway(address) view returns (address)
@@ -58,6 +68,19 @@ export class Stacker extends Contract {
     _adapter: string,
     _gateway: string
   ) => TransactionWrapper<ethers.Overrides>;
+  /**
+   * ```solidity
+   * function executeStackNoPayout(address[],uint256[],address[],string[],bytes[]) payable
+   * ```
+   *
+   */
+  executeStackNoPayout: (
+    _spendAssets: string[],
+    _spendAssetBalances: ethers.BigNumber[],
+    _callAdapters: string[],
+    _callSigs: string[],
+    _callArgs: string | ethers.utils.BytesLike
+  ) => TransactionWrapper<ethers.PayableOverrides>;
   /**
    * ```solidity
    * function executeStack(address[],uint256[],address[],string[],bytes[]) payable
