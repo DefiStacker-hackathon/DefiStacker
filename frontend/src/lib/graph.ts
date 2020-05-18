@@ -1,10 +1,19 @@
 import produce, { enableMapSet } from "immer";
+
 enableMapSet();
 
-export interface Graph<Node, T> {
-  nodes: Map<T, Node>; // Good to use timestamp as key
-  // TODO: Since we aren't doing branching, we can change this to Map<T, Array<T>>
-  incomingAdjacency: Map<T, Map<T, boolean>>;
+type Condition = any; // Any expression that evaluates to true or false
+
+export interface Graph<Node, NodeKey> {
+  nodes: Map<NodeKey, Node>; // Helpful to use timestamp as key instead of hash function
+  /**
+   * The first node key represents a node in the above node map.
+   * The second node key represents a node that has an edge pointing
+   * to the first node key.
+   * Condition is any expression that must be true in order for this
+   * edge to be "valid" in the graph.
+   */
+  incomingAdjacency: Map<NodeKey, Map<NodeKey, Condition>>;
 };
 
 export interface Node<V> {
@@ -61,6 +70,25 @@ export function addNode<T, V>(
 ): Graph<Node<V>, T> {
   return produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
     draft.nodes.set(key, node);
+  });
+}
+
+export function addAdjacency<T, V>(
+  graph: Graph<Node<V>, T>,
+  sourceKey: T,
+  destinationKey: T,
+  condition: Condition = undefined
+): Graph<Node<V>, T> {
+  if (graph.incomingAdjacency.get(destinationKey) === undefined) {
+    graph = produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
+      draft.incomingAdjacency.set(destinationKey, new Map());
+    });
+  }
+  const map = produce<Map<T, V>, Map<T, V>>(graph.incomingAdjacency.get(destinationKey), draft => {
+    draft.set(sourceKey, condition);
+  });
+  return produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
+    draft.incomingAdjacency.set(destinationKey, map);
   });
 }
 
