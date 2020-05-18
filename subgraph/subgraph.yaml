@@ -11,7 +11,7 @@ dataSources:
     source:
       abi: Stacker
       #PASTE CONTRACT ADDRESS HERE INSTEAD OF EXAMPLE ADDRESS
-      address: '0x489A377ac4A22Abe345706f93b74622D381942E5'
+      address: '0x75716B77Bc391146F923f7080fdc7Dcef89593C6'
       #PASTE START BLOCK HERE INSTEAD OF 99999999
       startBlock: 10056910
     mapping:

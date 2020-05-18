@@ -1,10 +1,15 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import * as ethers from "ethers";
-import { App } from "./App";
-import Context from "./context";
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import * as ethers from 'ethers';
+import { App } from './App';
+import Context from './context';
+import { createClient, Provider } from 'urql';
 
-const url = "http://localhost:8545";
+const client = createClient({
+  url: 'http://localhost:8000/subgraphs/name/defistacker/defistacker',
+});
+
+const url = 'http://localhost:8545';
 
 // Or if you are running the UI version, use this instead:
 // const url = "http://localhost:7545"
@@ -15,8 +20,10 @@ const ctx = { provider };
 export const EthersContext = React.createContext(ctx);
 
 ReactDOM.render(
-  <Context.Provider value={ctx}>
-    <App />
-  </Context.Provider>,
-  document.getElementById("app")
+  <Provider value={client}>
+    <Context.Provider value={ctx}>
+      <App />
+    </Context.Provider>
+  </Provider>,
+  document.getElementById('app'),
 );

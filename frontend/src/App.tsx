@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Layout, Row, Col } from 'antd';
 import { ApartmentOutlined } from '@ant-design/icons';
 const { Header, Content, Footer } = Layout;
-import { Chain, InitialBlock } from './components';
+import { Chain, InitialBlock, ANTVersion } from './components';
 
 // To see with empty state use the following:
 // const mockBlocks: string[] = [];
@@ -23,6 +23,7 @@ const App: React.FC = () => (
       </Row>
     </Header>
     <Content style={{ padding: '0 50px' }}>
+      <ANTVersion />
       <Row justify="center">
         {mockBlocks.length === 0 ? (
           <InitialBlock />

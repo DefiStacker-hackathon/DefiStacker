@@ -10,6 +10,7 @@ export function handleAdapterAdded(event: AdapterAdded): void {
 
   let adapters = arrayUnique<string>(stacker.adapters.concat([adapter.id]));
   stacker.adapters = adapters;
+  stacker.counter = stacker.counter + 1;
   stacker.save();
 }
 
@@ -19,5 +20,6 @@ export function handleAdapterRemoved(event: AdapterRemoved): void {
 
   let adapters = arrayDiff<string>(stacker.adapters, [adapter.id]);
   stacker.adapters = adapters;
+  stacker.counter = stacker.counter - 1;
   stacker.save();
 }

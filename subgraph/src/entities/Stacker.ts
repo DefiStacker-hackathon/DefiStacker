@@ -19,6 +19,7 @@ export function createStacker(address: Address): Stacker {
 
   stacker = new Stacker(address.toHex());
   stacker.adapters = [];
+  stacker.counter = 0;
   stacker.save();
 
   return stacker;

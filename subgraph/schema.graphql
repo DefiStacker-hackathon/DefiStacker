@@ -7,4 +7,5 @@ type Adapter @entity {
 type Stacker @entity {
   id: ID!
   adapters: [Adapter!]!
+  counter: Int!
 }

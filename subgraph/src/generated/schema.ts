@@ -99,4 +99,13 @@ export class Stacker extends Entity {
   set adapters(value: Array<string>) {
     this.set("adapters", Value.fromStringArray(value));
   }
+
+  get counter(): i32 {
+    let value = this.get("counter");
+    return value.toI32();
+  }
+
+  set counter(value: i32) {
+    this.set("counter", Value.fromI32(value));
+  }
 }
