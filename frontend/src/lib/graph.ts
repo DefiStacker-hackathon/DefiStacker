@@ -100,9 +100,12 @@ export function getIndegree0<T, V>(
   graph: Graph<Node<V>, T>
 ): Array<T> {
   const indegree0: Array<T> = [];
-  for (let [k, v] of graph.incomingAdjacency) {
-    if (v == undefined) {
-      indegree0.push(k);
+  for (let [nodeKey] of graph.nodes) {
+    const incomingMap = graph.incomingAdjacency.get(nodeKey);
+    if (incomingMap === undefined) {
+      indegree0.push(nodeKey);
+    } else if (incomingMap.size < 1) {
+      indegree0.push(nodeKey);
     }
   }
   return indegree0;
