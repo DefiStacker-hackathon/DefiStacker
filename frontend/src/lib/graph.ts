@@ -5,11 +5,9 @@ enableMapSet();
 export interface Graph<Node, NodeKey> {
   nodes: Map<NodeKey, Node>; // Helpful to use timestamp as key instead of hash function
   /**
-   * The first node key represents a node in the above node map.
-   * The second node key represents a node that has an edge pointing
-   * to the first node key.
-   * Condition is any expression that must be true in order for this
-   * edge to be "valid" in the graph.
+   * The key in the map represents a node in the above node map.
+   * The value is an array holding all keys for nodes with an edge
+   * pointing to the map key node.
    */
   incomingAdjacency: Map<NodeKey, Array<NodeKey>>;
 };
@@ -59,40 +57,43 @@ export function cloneNode<T>(node: Node<T>): Node<T> {
 /**
  * Returns a clone of `graph` with `node` added to the graph's nodes
  * @param graph
+ * @param nodeKey
  * @param node
  */
 export function addNode<T, V>(
   graph: Graph<Node<V>, T>,
-  key: T,
+  nodeKey: T,
   node: Node<V> 
 ): Graph<Node<V>, T> {
   return produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
-    draft.nodes.set(key, node);
-    draft.incomingAdjacency.set(key, []);
+    draft.nodes.set(nodeKey, node);
+    draft.incomingAdjacency.set(nodeKey, []);
   });
 }
 
 /**
- * 
+ * Creates a new node with `value` and adds it to a clone of `graph`
+ * with key `nodeKey`.
  * @param graph
- * @param node
+ * @param nodeKey
+ * @param value
  */
 export function addCreatedNode<T, V>(
   graph: Graph<Node<V>, T>,
-  key: T,
+  nodeKey: T,
   value: V
 ): Graph<Node<V>, T> {
   const node = createNode(value);
   return produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
-    draft.nodes.set(key, node);
-    draft.incomingAdjacency.set(key, []);
+    draft.nodes.set(nodeKey, node);
+    draft.incomingAdjacency.set(nodeKey, []);
   });
 }
 
 /**
  * Returns a clone of `graph` with all traces of `node` removed.
  * @param graph
- * @param key
+ * @param nodeKey
  */
 export function removeNode<T, V>(
   graph: Graph<Node<V>, T>,
@@ -112,6 +113,12 @@ export function removeNode<T, V>(
   return nextGraph;
 }
 
+/**
+ * Adds `sourceKey` to the list of `destinationKey` in `graph.incomingAdjacency`.
+ * @param graph 
+ * @param sourceKey 
+ * @param destinationKey 
+ */
 export function addAdjacency<T, V>(
   graph: Graph<Node<V>, T>,
   sourceKey: T,
