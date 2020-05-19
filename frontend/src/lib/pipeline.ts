@@ -16,15 +16,10 @@ export function addAdapterToPipeline(
 
   pipeline = addNode(pipeline, nodeKey, node);
 
-  const incomingNodeKeys = new Map();
-  incoming.forEach(key => {
-    incomingNodeKeys.set(key, true);
-  });
-  pipeline.incomingAdjacency.set(nodeKey, incomingNodeKeys);
-
+  pipeline.incomingAdjacency.set(nodeKey, incoming);
   outgoing.forEach(key => {
-    const outgoingNodeMap = pipeline.incomingAdjacency.get(key);
-    outgoingNodeMap.set(nodeKey, true);
+    const outgoingList = pipeline.incomingAdjacency.get(key);
+    outgoingList.push(nodeKey);
   });
 
   return { pipeline: pipeline, adapterId: nodeKey };
