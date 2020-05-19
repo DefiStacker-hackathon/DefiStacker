@@ -1,8 +1,12 @@
+import produce  from "immer";
+
+import { Contract } from "../../contracts/Contract";
+
 export interface Adapter {
   kind: AdapterKind;
+  contract: Contract;
   method: AdapterMethod;
   args: Array<string>;
-  outcome: boolean;
 };
 
 export enum AdapterKind {
@@ -14,51 +18,44 @@ export enum AdapterKind {
 
 export interface AdapterMethod {
   label: string;
-  raw: any;
   parameters: Array<string>;
+  parameterDescriptions: Array<string>;
   description: string;
 };
 
 export function createAdapter(
   kind: AdapterKind,
+  contract: Contract,
   method: AdapterMethod,
   args: Array<string>,
-  outcome: boolean = true
 ): Adapter {
-  const adapter: Adapter = {
+  return <Adapter>{
     kind: kind,
+    contract: contract,
     method: method,
-    args: args,
-    outcome: outcome
+    args: args
   };
-  return adapter;
 }
 
 export function cloneAdapter(
-  _adapter: Adapter,
+  adapter: Adapter,
   kind?: AdapterKind,
+  contract?: Contract,
   method?: AdapterMethod,
-  args?: Array<string>,
-  outcome?: boolean
+  args?: Array<string>
 ): Adapter {
-  const adapter = _adapter;
-  if (kind) {
-    adapter.kind = kind;
-  }
-  if (method) {
-    adapter.method = method;
-  }
-  if (args) {
-    adapter.args = args;
-  }
-  if (outcome) {
-    adapter.outcome = outcome;
-  }
-  return adapter;
-};
-
-export function getAbiFunction(abi: Array<any>, name: string): Object {
-  return abi.filter((obj) => {
-    return (obj["type"] === "function") && (obj["name"] === name);
+  return produce<Adapter, Adapter>(adapter, draft => {
+    if (kind) {
+      draft.kind = kind;
+    }
+    if (contract) {
+      draft.contract = contract;
+    }
+    if (method) {
+      draft.method = method;
+    }
+    if (args) {
+      draft.args = args;
+    }
   });
-}
+};
