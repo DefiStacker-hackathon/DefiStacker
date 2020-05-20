@@ -2,4 +2,7 @@ query testQuery {
   adapters {
     id
   }
+  stackers {
+    id
+  }
 }
