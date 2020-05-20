@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Form } from '.';
 import { motion, useMotionValue } from 'framer-motion';
+import { Adapter, AdapterKind } from '../lib/adapters/adapter';
 
 const { useEffect, useState, useRef } = React;
 // Config
@@ -16,11 +17,13 @@ const Block = ({
   setPosition,
   moveItem,
   i,
+  adapter,
 }: {
   color: string;
   setPosition: Function;
   moveItem: Function;
   i: number;
+  adapter: Adapter;
 }) => {
   const [isDragging, setDragging] = useState(false);
 
@@ -78,8 +81,7 @@ const Block = ({
         return !isDragging;
       }}
     >
-      Title {i + 1}
-      <Form />
+      {adapter.kind === AdapterKind.NULL ? <Form /> : <div>Title {i + 1}</div>}
     </motion.div>
   );
 };
