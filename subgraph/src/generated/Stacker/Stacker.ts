@@ -54,6 +54,52 @@ export class AdapterRemoved__Params {
   }
 }
 
+export class CallExecuted extends ethereum.Event {
+  get params(): CallExecuted__Params {
+    return new CallExecuted__Params(this);
+  }
+}
+
+export class CallExecuted__Params {
+  _event: CallExecuted;
+
+  constructor(event: CallExecuted) {
+    this._event = event;
+  }
+
+  get stackId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get callAdapter(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get callSig(): string {
+    return this._event.parameters[2].value.toString();
+  }
+
+  get callArgs(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
+
+  get incomingAssets(): Array<Address> {
+    return this._event.parameters[4].value.toAddressArray();
+  }
+
+  get incomingAmounts(): Array<BigInt> {
+    return this._event.parameters[5].value.toBigIntArray();
+  }
+
+  get outgoingAssets(): Array<Address> {
+    return this._event.parameters[6].value.toAddressArray();
+  }
+
+  get outgoingAmounts(): Array<BigInt> {
+    return this._event.parameters[7].value.toBigIntArray();
+  }
+}
+
 export class OwnershipTransferred extends ethereum.Event {
   get params(): OwnershipTransferred__Params {
     return new OwnershipTransferred__Params(this);
@@ -93,32 +139,36 @@ export class StackExecuted__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
+  get stackId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
   get spendAssets(): Array<Address> {
-    return this._event.parameters[1].value.toAddressArray();
+    return this._event.parameters[2].value.toAddressArray();
   }
 
   get spendAssetBalances(): Array<BigInt> {
-    return this._event.parameters[2].value.toBigIntArray();
+    return this._event.parameters[3].value.toBigIntArray();
   }
 
   get callAdapters(): Array<Address> {
-    return this._event.parameters[3].value.toAddressArray();
+    return this._event.parameters[4].value.toAddressArray();
   }
 
   get callSigs(): Array<string> {
-    return this._event.parameters[4].value.toStringArray();
+    return this._event.parameters[5].value.toStringArray();
   }
 
   get callArgs(): Array<Bytes> {
-    return this._event.parameters[5].value.toBytesArray();
+    return this._event.parameters[6].value.toBytesArray();
   }
 
   get paidOutAssets(): Array<Address> {
-    return this._event.parameters[6].value.toAddressArray();
+    return this._event.parameters[7].value.toAddressArray();
   }
 
   get paidOutAmounts(): Array<BigInt> {
-    return this._event.parameters[7].value.toBigIntArray();
+    return this._event.parameters[8].value.toBigIntArray();
   }
 }
 
@@ -178,6 +228,21 @@ export class Stacker extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  stackId(): BigInt {
+    let result = super.call("stackId", "stackId():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_stackId(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("stackId", "stackId():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 }
 

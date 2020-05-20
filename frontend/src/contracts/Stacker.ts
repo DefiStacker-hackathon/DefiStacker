@@ -8,12 +8,14 @@ export class Stacker extends Contract {
   public static readonly abi: string[] = [
     "event AdapterAdded(address adapter, address gateway)",
     "event AdapterRemoved(address adapter, address gateway)",
+    "event CallExecuted(uint256 stackId, address callAdapter, string callSig, bytes callArgs, address[] incomingAssets, uint256[] incomingAmounts, address[] outgoingAssets, uint256[] outgoingAmounts)",
     "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-    "event StackExecuted(address indexed sender, address[] spendAssets, uint256[] spendAssetBalances, address[] callAdapters, string[] callSigs, bytes[] callArgs, address[] paidOutAssets, uint256[] paidOutAmounts)",
+    "event StackExecuted(address indexed sender, uint256 stackId, address[] spendAssets, uint256[] spendAssetBalances, address[] callAdapters, string[] callSigs, bytes[] callArgs, address[] paidOutAssets, uint256[] paidOutAmounts)",
     "function ETH_ADDRESS() view returns (address)",
     "function adapterToGateway(address) view returns (address)",
     "function owner() view returns (address)",
     "function renounceOwnership()",
+    "function stackId() view returns (uint256)",
     "function transferOwnership(address newOwner)",
     "function addAdapter(address _adapter, address _gateway)",
     "function executeStackNoPayout(address[] _spendAssets, uint256[] _spendAssetBalances, address[] _callAdapters, string[] _callSigs, bytes[] _callArgs) payable",
@@ -44,6 +46,13 @@ export class Stacker extends Contract {
    *
    */
   owner: ($$overrides?: ethers.CallOverrides) => Promise<string>;
+  /**
+   * ```solidity
+   * function stackId() view returns (uint256)
+   * ```
+   *
+   */
+  stackId: ($$overrides?: ethers.CallOverrides) => Promise<ethers.BigNumber>;
   /**
    * ```solidity
    * function renounceOwnership()
