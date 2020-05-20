@@ -82,6 +82,24 @@ export function removeAdapter(
   return { pipeline: pipeline, adapterId: id };
 }
 
+/**
+ * Returns a list of adapters in `pipeline` in order.
+ * @param pipeline
+ */
+export function getAdapters(pipeline: Graph<Node<Adapter>, number>): Array<any> {
+  const ids = getTopologicalSortOrder(pipeline);
+  return ids.map((id) => {
+    return {
+      id: id,
+      adapter: pipeline.nodes.get(id).value,
+    };
+  });
+}
+
+/**
+ * Returns a string representing `pipeline`.
+ * @param pipeline 
+ */
 export function serializePipeline(pipeline: Graph<Node<Adapter>, number>): string {
   return JSON.stringify({
     "adapters": [
