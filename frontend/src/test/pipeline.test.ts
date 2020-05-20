@@ -35,7 +35,7 @@ describe("addAdapterToPipeline", function() {
     let { pipeline: pipeline_2, adapterId} = addAdapterToPipeline(pipeline_1, adapter);
     expect(pipeline_2.nodes.get(adapterId)).toEqual({ value: adapter});
   });
-  it("should return a pipeline the adapter connected to others as described and required outcomes as true", function() {
+  it("should return a pipeline the adapter connected to others as described", function() {
     let pipeline_1 = startNewPipeline();
     const adapter_1 = createAdapter(
       AdapterKind.AAVE,
@@ -49,6 +49,6 @@ describe("addAdapterToPipeline", function() {
     );
     let { pipeline: pipeline_2, adapterId: adapter_1_id } = addAdapterToPipeline(pipeline_1, adapter_1);
     let { pipeline: pipeline_3, adapterId: adapter_2_id } = addAdapterToPipeline(pipeline_2, adapter_2, [adapter_1_id]);
-    expect(pipeline_3.incomingAdjacency.get(adapter_2_id).get(adapter_1_id)).toBe(true);
+    expect(pipeline_3.incomingAdjacency.get(adapter_2_id)).toContain(adapter_1_id);
   });
 });

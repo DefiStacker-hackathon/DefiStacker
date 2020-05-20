@@ -1,10 +1,7 @@
 import produce  from "immer";
 
-import { Contract } from "../../contracts/Contract";
-
 export interface Adapter {
   kind: AdapterKind;
-  contract: Contract;
   method: AdapterMethod;
   args: Array<string>;
 };
@@ -13,7 +10,7 @@ export enum AdapterKind {
   AAVE = "aave",
   KYBER = "kyber",
   UNISWAP_1 = "uniswap_1",
-  UNISWAP_2 = "uniswap_2",
+  NULL = "",
 };
 
 export interface AdapterMethod {
@@ -25,31 +22,38 @@ export interface AdapterMethod {
 
 export function createAdapter(
   kind: AdapterKind,
-  contract: Contract,
   method: AdapterMethod,
   args: Array<string>,
 ): Adapter {
   return <Adapter>{
     kind: kind,
-    contract: contract,
     method: method,
     args: args
   };
 }
 
+export function createBlankAdapter(): Adapter {
+  return <Adapter>{
+    kind: AdapterKind.NULL,
+    method: {
+      label: "",
+      parameters: [],
+      parameterDescriptions: [],
+      description: ""
+    },
+    args: []
+  }
+}
+
 export function cloneAdapter(
   adapter: Adapter,
   kind?: AdapterKind,
-  contract?: Contract,
   method?: AdapterMethod,
   args?: Array<string>
 ): Adapter {
   return produce<Adapter, Adapter>(adapter, draft => {
     if (kind) {
       draft.kind = kind;
-    }
-    if (contract) {
-      draft.contract = contract;
     }
     if (method) {
       draft.method = method;
