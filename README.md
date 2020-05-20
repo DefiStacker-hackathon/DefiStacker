@@ -56,7 +56,7 @@ Sebastian
 
 Sean
 
-Valerie
+Val - [in/valmack](https://www.linkedin.com/in/valmack)
 
 Distributed under the MIT license. See `LICENSE` for more information.
 
