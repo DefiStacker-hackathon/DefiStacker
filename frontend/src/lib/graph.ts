@@ -91,7 +91,7 @@ export function addCreatedNode<T, V>(
 }
 
 /**
- * Returns a clone of `graph` with a new node at nodeKey. 
+ * Returns a clone of `graph` with a new node at `nodeKey`. 
  * @param graph
  * @param nodeKey
  * @param value
@@ -150,6 +150,22 @@ export function addAdjacency<T, V>(
 }
 
 /**
+ * Returns a clone of graph with `incoming` as the adjacency list for `nodeKey`.
+ * @param graph 
+ * @param nodeKey 
+ * @param incoming Keys for nodes that should point to `nodeKey`
+ */
+export function updateAdjacency<T, V>(
+  graph: Graph<Node<V>, T>,
+  nodeKey: T,
+  incoming: Array<T>
+): Graph<Node<V>, T> {
+  return produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
+    draft.incomingAdjacency.set(nodeKey, incoming);
+  });
+}
+
+/**
  * Removes `sourceKey` from `graph.incomingAdjacency` list of `destinationKey`.
  * @param graph 
  * @param sourceKey 
@@ -171,6 +187,20 @@ export function removeAdjacency<T, V>(
   } else {
     throw Error("The adjacency does not exist");
   }
+}
+
+/**
+ * Returns a clone of graph with an empty adjacency list for `nodeKey`.
+ * @param graph 
+ * @param nodeKey 
+ */
+export function clearAdjacency<T, V>(
+  graph: Graph<Node<V>, T>,
+  nodeKey: T,
+): Graph<Node<V>, T> {
+  return produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
+    draft.incomingAdjacency.set(nodeKey, []);
+  });
 }
 
 /**
