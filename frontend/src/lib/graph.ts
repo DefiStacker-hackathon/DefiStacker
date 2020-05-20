@@ -91,6 +91,23 @@ export function addCreatedNode<T, V>(
 }
 
 /**
+ * Returns a clone of `graph` with a new node at nodeKey. 
+ * @param graph
+ * @param nodeKey
+ * @param value
+ */
+export function updateNode<T, V>(
+  graph: Graph<Node<V>, T>,
+  nodeKey: T,
+  value: V
+): Graph<Node<V>, T> {
+  const node = createNode(value);
+  return produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
+    draft.nodes.set(nodeKey, node);
+  });
+}
+
+/**
  * Returns a clone of `graph` with all traces of `node` removed.
  * @param graph
  * @param nodeKey
