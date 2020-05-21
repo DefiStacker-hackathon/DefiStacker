@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Button, Row, Col } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { motion } from 'framer-motion';
 import { usePipelineDispatch } from '../context';
 import { CaretRightOutlined } from '@ant-design/icons';
 
@@ -13,18 +14,39 @@ const TooltipContainerStyle: React.CSSProperties = {
 };
 const RelativeContainerStyle: React.CSSProperties = { position: 'relative' };
 
+const variants = {
+  visible: {
+    opacity: 100,
+    transition: {
+      ease: 'easeIn',
+      duration: 5,
+      staggerChildren: 1,
+    },
+  },
+  hidden: {
+    opacity: 0,
+  },
+};
+
 const InitialBlock: React.FC = () => {
   const dispatch = usePipelineDispatch();
   return (
-    <div style={RelativeContainerStyle}>
-      <Button
-        type="dashed"
-        style={ButtonStyle}
-        onClick={() => dispatch({ type: 'add_blank' })}
-      >
-        <PlusOutlined style={IconStyle} />
-      </Button>
-      <div style={TooltipContainerStyle}>
+    <motion.div
+      style={RelativeContainerStyle}
+      initial="hidden"
+      animate="visible"
+      variants={variants}
+    >
+      <motion.div variants={variants}>
+        <Button
+          type="dashed"
+          style={ButtonStyle}
+          onClick={() => dispatch({ type: 'add_blank' })}
+        >
+          <PlusOutlined style={IconStyle} />
+        </Button>
+      </motion.div>
+      <motion.div style={TooltipContainerStyle} variants={variants}>
         <Row align="middle" gutter={10}>
           <Col>
             <div>Get started by adding your first building block</div>
@@ -33,8 +55,8 @@ const InitialBlock: React.FC = () => {
             <CaretRightOutlined />
           </Col>
         </Row>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

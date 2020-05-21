@@ -6,6 +6,7 @@ const ColStyle: React.CSSProperties = {
   marginTop: '10px',
   marginBottom: '10px',
 };
+const RowStyle: React.CSSProperties = { paddingBottom: '30px' };
 
 const Landing: React.FC = () => {
   const dispatch = usePipelineDispatch();
@@ -22,10 +23,10 @@ const Landing: React.FC = () => {
         <Row justify="center">Welcome to DeFi Stacker! We do some stuff.</Row>
       </Col>
       <Col span={24} md={12}>
-        <Row justify="center" style={{ paddingBottom: '30px' }}>
+        <Row justify="center" style={RowStyle}>
           What would you like to do with DeFi today?
         </Row>
-        <Row justify="center">
+        <Row justify="center" style={RowStyle}>
           <Col style={ColStyle}>
             <Row justify="center">
               <Button size="large" type="primary">
@@ -47,6 +48,14 @@ const Landing: React.FC = () => {
               <Row>Build my own transaction</Row>
             </Button>
           </Col>
+        </Row>
+        <Row justify="center" style={RowStyle}>
+          Saved templates:
+        </Row>
+        <Row justify="center" style={RowStyle}>
+          <Button size="large" type="dashed" disabled>
+            <Row>Coming Soon!</Row>
+          </Button>
         </Row>
       </Col>
     </Row>
