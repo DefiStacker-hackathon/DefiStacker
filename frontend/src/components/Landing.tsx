@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Row, Col, Button } from 'antd';
-import { usePipeline } from '../context';
+import { usePipelineDispatch } from '../context';
 
 const Landing: React.FC = () => {
-  const [state, dispatch] = usePipeline();
+  const dispatch = usePipelineDispatch();
 
   return (
     <Row
