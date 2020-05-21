@@ -1,6 +1,8 @@
 {
   "private": true,
   "dependencies": {
-    "@openzeppelin/contracts": "^3.0.1"
+    "@openzeppelin/contracts": "^3.0.1",
+    "cdpsaver-contracts": "https://github.com/DecenterApps/defisaver-contracts",
+    "truffle": "^5.1.26"
   }
 }
