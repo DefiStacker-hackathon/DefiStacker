@@ -2,11 +2,11 @@ import * as React from 'react';
 import { Form } from '.';
 import { motion, useMotionValue } from 'framer-motion';
 import { Adapter, AdapterKind } from '../lib/adapters/adapter';
-
 const { useEffect, useState, useRef } = React;
 // Config
-const onTop = { zIndex: 1 };
+const onTop = { zIndex: 1, scale: 1.12 };
 const flat = {
+  scale: 1,
   zIndex: 0,
   transition: { delay: 0.3 },
 };
@@ -18,12 +18,14 @@ const Block = ({
   moveItem,
   i,
   adapter,
+  id,
 }: {
   color: string;
   setPosition: Function;
   moveItem: Function;
   i: number;
   adapter: Adapter;
+  id: number;
 }) => {
   const [isDragging, setDragging] = useState(false);
 
@@ -54,12 +56,10 @@ const Block = ({
       style={{
         background: color,
         maxHeight,
-        width: '300px',
+        width: '400px',
         borderRadius: '3px',
         marginBottom: '10px',
       }}
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 1.12 }}
       drag="y"
       dragOriginY={dragOriginY}
       dragConstraints={{ top: 0, bottom: 0 }}
@@ -81,7 +81,11 @@ const Block = ({
         return !isDragging;
       }}
     >
-      {adapter.kind === AdapterKind.NULL ? <Form /> : <div>Title {i + 1}</div>}
+      {adapter.kind === AdapterKind.NULL ? (
+        <Form i={i} id={id} />
+      ) : (
+        <div>Title {i + 1}</div>
+      )}
     </motion.div>
   );
 };
