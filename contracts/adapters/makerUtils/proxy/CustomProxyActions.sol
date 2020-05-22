@@ -1,10 +1,11 @@
 pragma solidity ^0.6.0;
 
 import "../../../../node_modules/cdpsaver-contracts/contracts/mcd/general/SaverProxyActions.sol";
+import "./ExtendedProxyActions.sol";
 import "../constants/ConstantAddresses.sol";
 
 
-contract CustomProxyActions is SaverProxyActions, ConstantAddresses {
+contract CustomProxyActions is SaverProxyActions, ExtendedProxyActions, ConstantAddresses {
     mapping(address => address) public tokenToJoin;
 
     constructor() public {
