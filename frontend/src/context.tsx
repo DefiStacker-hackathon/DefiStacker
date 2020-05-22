@@ -1,28 +1,34 @@
 import React from 'react';
 import * as ethers from 'ethers';
-import { Adapter } from './lib/adapters/adapter';
 import { Graph, Node } from './lib/graph';
-import { startNewPipeline, addAdapter } from './lib/pipeline';
-import { takeFlashLoan } from './lib/adapters/aave';
+import { startNewPipeline, addAdapter, updateAdapter } from './lib/pipeline';
 import {
-  createAdapter,
+  Adapter,
   createBlankAdapter,
   AdapterKind,
+  AdapterMethod,
 } from './lib/adapters/adapter';
 import { getProvider } from './utils/metamask';
 
 interface State {
   provider: ethers.ethers.providers.JsonRpcProvider;
   pipeline: Graph<Node<Adapter>, number>;
+  // updating state?
+  // TODO: Wallet?
 }
 
 type Action =
   | { type: 'init' }
   | { type: 'connect' }
-  | { type: 'add' }
   | { type: 'add_blank' }
-  | { type: 'delete' }
-  | { type: 'update' };
+  | {
+      type: 'update';
+      id: number;
+      kind: AdapterKind;
+      method: AdapterMethod;
+      args: Array<string>;
+    }
+  | { type: 'delete' };
 type Dispatch = (action: Action) => void;
 type PipelineProviderProps = { children: React.ReactNode };
 
@@ -45,19 +51,14 @@ function pipelineReducer(state: State, action: Action) {
     case 'add_blank': {
       if (!state.pipeline) throw new Error('Pipeline not initialized');
       const BlankAdapter = createBlankAdapter();
-      const { pipeline, adapterId } = addAdapter(state.pipeline, BlankAdapter);
+      const { pipeline } = addAdapter(state.pipeline, BlankAdapter);
       return { ...state, pipeline };
     }
-    // Add new adapter to the pipeline
-    case 'add': {
-      if (!state.pipeline) throw new Error('Pipeline not initialized');
-      const { pipeline, adapterId } = addAdapter(
-        state.pipeline,
-        createAdapter(AdapterKind.AAVE, takeFlashLoan, []),
-      );
-      console.log(1);
-      return { ...state, pipeline };
-    }
+    // Move an adapter in the pipeline to a new index
+    // case 'move': {
+    //   // TODO
+    //   return { ...state };
+    // }
     // Delete an adapter from the pipeline
     case 'delete': {
       // TODO
@@ -65,8 +66,16 @@ function pipelineReducer(state: State, action: Action) {
     }
     // Update an adapter in the pipeline
     case 'update': {
-      // TODO
-      return { ...state };
+      const { id, kind, method, args } = action;
+      const { pipeline } = updateAdapter(
+        state.pipeline,
+        id,
+        kind,
+        method,
+        args,
+      );
+      console.log(2);
+      return { ...state, pipeline };
     }
     default: {
       throw new Error(`Unhandled action type`);
