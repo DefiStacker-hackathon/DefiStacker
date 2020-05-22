@@ -1,10 +1,16 @@
 import React from 'react';
 import * as ethers from 'ethers';
 import { Graph, Node } from './lib/graph';
-import { startNewPipeline, addAdapter, updateAdapter } from './lib/pipeline';
+import {
+  startNewPipeline,
+  addAdapter,
+  updateAdapter,
+  removeAdapter,
+} from './lib/pipeline';
 import {
   Adapter,
   createBlankAdapter,
+  createAdapter,
   AdapterKind,
   AdapterMethod,
 } from './lib/adapters/adapter';
@@ -13,14 +19,18 @@ import { getProvider } from './utils/metamask';
 interface State {
   provider: ethers.ethers.providers.JsonRpcProvider;
   pipeline: Graph<Node<Adapter>, number>;
-  // updating state?
   // TODO: Wallet?
 }
 
 type Action =
-  | { type: 'init' }
   | { type: 'connect' }
-  | { type: 'add_blank' }
+  | { type: 'init' }
+  | { type: 'add_blank'; incoming: number[]; outgoing: number[] }
+  | {
+      type: 'move';
+      id: number;
+      to: { incoming: number[]; outgoing: number[] };
+    }
   | {
       type: 'update';
       id: number;
@@ -28,7 +38,7 @@ type Action =
       method: AdapterMethod;
       args: Array<string>;
     }
-  | { type: 'delete' };
+  | { type: 'delete'; id: number };
 type Dispatch = (action: Action) => void;
 type PipelineProviderProps = { children: React.ReactNode };
 
@@ -50,22 +60,47 @@ function pipelineReducer(state: State, action: Action) {
     // Add a new blank to the pipeline that will be rendered as a form
     case 'add_blank': {
       if (!state.pipeline) throw new Error('Pipeline not initialized');
+      const { incoming, outgoing } = action;
       const BlankAdapter = createBlankAdapter();
-      const { pipeline } = addAdapter(state.pipeline, BlankAdapter);
+      const { pipeline } = addAdapter(
+        state.pipeline,
+        BlankAdapter,
+        incoming,
+        outgoing,
+      );
       return { ...state, pipeline };
     }
     // Move an adapter in the pipeline to a new index
-    // case 'move': {
-    //   // TODO
-    //   return { ...state };
-    // }
+    case 'move': {
+      if (!state.pipeline) throw new Error('Pipeline not initialized');
+      const {
+        id,
+        to: { incoming, outgoing },
+      } = action;
+      const { kind, method, args } = state.pipeline.nodes.get(id).value;
+      const newAdapter = createAdapter(kind, method, args);
+      const { pipeline: pipelineWithoutAdapter } = removeAdapter(
+        state.pipeline,
+        id,
+      );
+      const { pipeline } = addAdapter(
+        pipelineWithoutAdapter,
+        newAdapter,
+        incoming,
+        outgoing,
+      );
+      return { ...state, pipeline };
+    }
     // Delete an adapter from the pipeline
     case 'delete': {
-      // TODO
-      return { ...state };
+      if (!state.pipeline) throw new Error('Pipeline not initialized');
+      const { id } = action;
+      const { pipeline } = removeAdapter(state.pipeline, id);
+      return { ...state, pipeline };
     }
     // Update an adapter in the pipeline
     case 'update': {
+      if (!state.pipeline) throw new Error('Pipeline not initialized');
       const { id, kind, method, args } = action;
       const { pipeline } = updateAdapter(
         state.pipeline,

@@ -1,27 +1,45 @@
 import * as React from 'react';
-const { useCallback, useEffect, useState } = React;
+const { useEffect, useState, useRef } = React;
 import { Row, Col } from 'antd';
-import {
-  // findIndex,
-  Position,
-} from '../utils/find-index';
-// import move from 'array-move';
-import { usePipeline } from '../context';
-import { Block, BlockConnection, InitialBlock, Wallet, Submit } from '.';
+import { findIndex, Position } from '../utils/find-index';
+import move from 'array-move';
+import { usePipelineState } from '../context';
+import { Block, BlockEmpty, Wallet, Submit } from '.';
 import { getAdapters } from '../lib/pipeline';
+import { Adapter } from '../lib/adapters/adapter';
 
-const { useRef } = React;
-
-const styles = {
-  container: {
-    marginTop: '20px',
-    width: '100%',
-  },
+const ContainerStyle: React.CSSProperties = {
+  marginTop: '20px',
+  width: '100%',
+};
+const VerticalFlexStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+};
+const RowHeightStyle: React.CSSProperties = {
+  height: '100%',
 };
 
 const Chain = () => {
-  const [state, dispatch] = usePipeline();
-  const [blocks, setBlocks] = useState([]);
+  const state = usePipelineState();
+  
+  const [blocks, setBlocks]: [
+    { id: number; adapter: Adapter }[] | null,
+    React.Dispatch<any>,
+  ] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      if (state.pipeline == null) return;
+      const adapters = getAdapters(state.pipeline);
+      if (adapters.length === 0) {
+        setBlocks([]);
+        return;
+      }
+      setBlocks(adapters);
+    })();
+  }, [state]);
 
   // We need to collect an array of height and position data for all of this component's
   // `Item` children, so we can later us that in calculations to decide when a dragging
@@ -33,28 +51,22 @@ const Chain = () => {
   // current drag offset. If it's different to its current index, we swap this item with that
   // sibling.
 
-  const moveItem = useCallback(
-    (i: number, dragOffset: number) => {
-      // const targetIndex = findIndex(i, dragOffset, positions);
-      // console.log(i, targetIndex, blocks, move(blocks, i, targetIndex));s
-      // if (targetIndex !== i) setBlocks(move(blocks, i, targetIndex));
-    },
-    [blocks],
-  );
+  const moveItem = (i: number, dragOffset: number) => {
+    const targetIndex = findIndex(i, dragOffset, positions);
+    if (targetIndex !== i) setBlocks(move(blocks, i, targetIndex));
+  };
 
-  useEffect(() => {
-    ((): void => {
-      console.log('called');
-      if (state.pipeline == null) return;
-      const adapters = getAdapters(state.pipeline);
-      if (adapters.length === 0) {
-        setBlocks([<InitialBlock key={'initial-block'} />]);
-        return;
-      }
-      setBlocks([
-        ...adapters
-          .map(({ id, adapter }, i) => {
-            return [
+  return (
+    <Row style={ContainerStyle} justify="center">
+      <Col span={8}>
+        <Row align="middle" justify="center" style={RowHeightStyle}>
+          <Wallet />
+        </Row>
+      </Col>
+      <Col span={8} style={VerticalFlexStyle}>
+        {blocks && blocks.length ? (
+          blocks.map(
+            ({ id, adapter }: { id: number; adapter: Adapter }, i: number) => (
               <Block
                 id={id}
                 key={id}
@@ -63,35 +75,19 @@ const Chain = () => {
                 color={'#AAA'}
                 setPosition={setPosition}
                 moveItem={moveItem}
-              />,
-              <BlockConnection key={`${id}-block-connection`} />,
-            ];
-          })
-          .flat(),
-      ]);
-    })();
-  }, [state]);
-
-  return (
-    <Row style={styles.container} justify="center">
-      <Col span={9}>
-        <Row align="middle" justify="center" style={{ height: '100%' }}>
-          <Wallet />
-        </Row>
+                chainLength={blocks.length}
+                // TODO: This is a janky kludge. Clean this up for proper branching
+                previous={i > 0 ? [blocks[i - 1].id] : []}
+                next={i === blocks.length - 1 ? [] : [blocks[i + 1].id]}
+              />
+            ),
+          )
+        ) : (
+          <BlockEmpty key={'initial-block'} />
+        )}
       </Col>
-      <Col span={6}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          {blocks}
-        </div>
-      </Col>
-      <Col span={9}>
-        <Row align="middle" justify="center" style={{ height: '100%' }}>
+      <Col span={8}>
+        <Row align="middle" justify="center" style={RowHeightStyle}>
           <Submit />
         </Row>
       </Col>

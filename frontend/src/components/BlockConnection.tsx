@@ -5,6 +5,7 @@ import { usePipelineDispatch } from '../context';
 
 const ArrowContainerStyle: React.CSSProperties = {
   position: 'relative',
+  width: 3.5,
 };
 const ArrowLineStyle: React.CSSProperties = {
   borderRight: ' 0.2rem dashed red',
@@ -29,22 +30,35 @@ const ArrowHeadLeftStyle: React.CSSProperties = {
   transform: 'rotate(45deg)',
 };
 
-const BlockConnection = () => {
+const BlockConnection = ({
+  id,
+  previous,
+  next,
+  isHovering,
+}: {
+  id: number;
+  previous: number[];
+  next: number[];
+  isHovering: boolean;
+}) => {
   const dispatch = usePipelineDispatch();
-
   return (
     <div style={ArrowContainerStyle}>
       <span style={ArrowHeadRightStyle}></span>
       <span style={ArrowLineStyle}></span>
-      <span style={{ position: 'absolute', left: '20px', top: '22%' }}>
-        <Button
-          danger
-          type="primary"
-          shape="circle"
-          icon={<PlusOutlined />}
-          onClick={() => dispatch({ type: 'add_blank' })}
-        />
-      </span>
+      {isHovering && (
+        <span style={{ position: 'absolute', left: '20px', top: '22%' }}>
+          <Button
+            danger
+            type="primary"
+            shape="circle"
+            icon={<PlusOutlined />}
+            onClick={() => 
+              dispatch({ type: 'add_blank', incoming: [id], outgoing: next })
+            }
+          />
+        </span>
+      )}
       <span style={ArrowHeadLeftStyle}></span>
     </div>
   );
