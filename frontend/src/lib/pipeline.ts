@@ -1,4 +1,4 @@
-import { Graph, Node, createGraph, createNode, addNode, updateNode, removeNode, addAdjacency, clearAdjacency, getTopologicalSortOrder } from "./graph";
+import { Graph, Node, createGraph, createNode, addNode, updateNode, removeNode, addAdjacency, removeAdjacency, getTopologicalSortOrder } from "./graph";
 import { Adapter, AdapterKind, AdapterMethod, cloneAdapter } from "./adapters/adapter";
 
 /**
@@ -26,7 +26,9 @@ export function addAdapter(
 
   pipeline = addNode(pipeline, nodeKey, node);
   incoming.forEach(inKey => {
-    pipeline = clearAdjacency(pipeline, inKey);
+    outgoing.forEach((outKey) => {
+      pipeline = removeAdjacency(pipeline, inKey, outKey);
+    });
     pipeline = addAdjacency(pipeline, inKey, nodeKey);
   });
   outgoing.forEach(outKey => {
