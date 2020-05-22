@@ -1,12 +1,11 @@
 pragma solidity ^0.6.0;
 
 import "../../../../node_modules/cdpsaver-contracts/contracts/mcd/general/SaverProxyActions.sol";
-import "../../../../node_modules/cdpsaver-contracts/contracts/mcd/saver_proxy/SaverProxyHelper.sol";
 import "../../../../node_modules/cdpsaver-contracts/contracts/DS/DSMath.sol";
 import "./ExtendedProxyActions.sol";
 import "../constants/ConstantAddresses.sol";
 //import "../interfaces/IERC20.sol";
-
+import "../mcd/Vat.sol";
 
 contract CustomProxyActions is SaverProxyActions, ExtendedProxyActions, ConstantAddresses {
     mapping(address => address) public tokenToJoin;
