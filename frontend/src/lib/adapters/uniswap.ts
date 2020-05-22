@@ -1,6 +1,6 @@
 import { AdapterMethod } from './adapter';
 
-export const swap = <AdapterMethod>{
+export const swapUniswap = <AdapterMethod>{
   label: 'swap',
   parameters: [
     'gatewayAddress',
