@@ -74,7 +74,6 @@ function pipelineReducer(state: State, action: Action) {
         method,
         args,
       );
-      console.log(2);
       return { ...state, pipeline };
     }
     default: {
