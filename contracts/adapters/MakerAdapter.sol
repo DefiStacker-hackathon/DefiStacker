@@ -9,22 +9,6 @@ import "./makerUtils/interfaces/GetCdps.sol";
 
 import "./makerUtils/proxy/CustomProxyActions.sol";
 
-/*
-    1. MakerAdapter - has the proxyActions : similar to aave
-*/
-
-  /*
-        1. proxy.execute(functionSigs(address(this))) > proxy.execute > address(this) functionSigs execute function > hook inside of Stacker, to then do uniswap > to then do further CDP
-                - create blah
-                - uniswap
-                - increaseCollatoral CDP
-
-        2. proxy.execute(functionSigs(CustomProxyActionContractAddress)) > proxy.execute > CustomProxyActionContract functionSigs execute function
-    */
-
-
- 
-
 
 contract MakerAdapter is CustomProxyActions {
     using SafeMath for uint256;
@@ -34,18 +18,18 @@ contract MakerAdapter is CustomProxyActions {
     address constant MAKER_ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     address immutable ADAPTER_ADDRESS;
-    address immutable STACKER_ADDRESS;
-    address immutable UNISWAP_ADDRESS;
-    address immutable KYBER_ADDRESS;
-    address immutable AAVE_ADDRESS;
 
     constructor(address _stacker, address _uniswap, address _kyber, address _aave) public payable {
+        tokenToJoin[BAT_TOKEN] = MCD_JOIN_BAT_A;
+        tokenToJoin[USDC_TOKEN] = MCD_JOIN_USDC_A;
+        tokenToJoin[WBTC_TOKEN] = MCD_JOIN_BAT_A;
+        tokenToJoin[DAI_TOKEN] = MCD_JOIN_DAI;
         ADAPTER_ADDRESS = address(this);
-        STACKER_ADDRESS = _stacker;
-        UNISWAP_ADDRESS = _uniswap;
-        KYBER_ADDRESS = _kyber;
-        AAVE_ADDRESS = _aave;
+        UNISWAP_ADAPTER = _uniswap;
+        KYBER_ADAPTER = _kyber;
+        AAVE_ADAPTER = _aave;
     }
+
     /**
      * @dev called by stacker 
      */
@@ -110,7 +94,7 @@ contract MakerAdapter is CustomProxyActions {
     }
 }
 
-abstract contract Proxy {
-    function execute(address _target, bytes memory _data) virtual public payable returns (bytes32);
-    function setOwner(address owner_) virtual public;
+interface Proxy {
+    function execute(address _target, bytes calldata _data) external payable returns (bytes32);
+    function setOwner(address owner_) external;
 }

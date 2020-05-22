@@ -5,6 +5,7 @@ contract ConstantAddresses {
     address constant CDP_MANAGER = 0x5ef30b9986345249bc32d8928B7ee64DE9435E39;
     address constant GET_CDPS = 0x36a724Bd100c39f0Ea4D3A20F7097eE01A8Ff573;
     address constant MCD_JUG = 0x19c0976f590D67707E62397C87829d896Dc0f1F1;
+    address constant MCD_VAT = 0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B;
     address constant MCD_JOIN_ETH_A = 0x2F0b23f53734252Bda2277357e97e1517d6B042A;
     address constant MCD_JOIN_DAI = 0x9759A6Ac90977b93B58547b4A71c78317f391A28;
     address constant MCD_JOIN_USDC_A = 0xA191e578a6736167326d05c119CE0c90849E84B7;
@@ -17,5 +18,4 @@ contract ConstantAddresses {
     address constant WBTC_TOKEN = 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;
     address constant WETH_TOKEN = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address constant ETH_RAW = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-
 }
