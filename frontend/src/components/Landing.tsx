@@ -45,11 +45,7 @@ const Landing: React.FC = () => {
             </Button>
           </Col>
           <Col offset={1} style={ColStyle}>
-            <Button
-              size="large"
-              onClick={() => dispatch({ type: 'init' })}
-              type="dashed"
-            >
+            <Button size="large" onClick={() => dispatch({ type: 'init' })}>
               <Row>Build my own transaction</Row>
             </Button>
           </Col>

@@ -12,7 +12,7 @@ const Submit = () => {
   }, [state]);
 
   return (
-    <Button disabled={disabled} type="primary">
+    <Button disabled={disabled} type={disabled ? 'dashed' : 'primary'}>
       Submit
     </Button>
   );
