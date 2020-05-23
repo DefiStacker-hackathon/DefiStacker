@@ -117,6 +117,15 @@ interface IUniswapExchange {
     )
         external
         returns (uint256 tokens_bought);
+
+    // Prices
+    function getEthToTokenInputPrice(uint256 eth_sold)
+        external
+        view returns (uint256 tokens_bought);
+    function getTokenToEthInputPrice(uint256 tokens_sold)
+        external
+        view
+        returns (uint256 eth_bought);
 }
 
 interface IUniswapFactory {
