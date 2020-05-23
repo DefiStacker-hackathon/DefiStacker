@@ -7,7 +7,7 @@ const GATEWAY_ADDRESSES = {
 };
 
 const TOKEN_ADDRESSES = {
-  DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
+  DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   ETH: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 };
 
