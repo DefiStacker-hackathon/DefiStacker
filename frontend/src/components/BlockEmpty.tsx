@@ -28,7 +28,7 @@ const variants = {
   },
 };
 
-const InitialBlock: React.FC = () => {
+const BlockEmpty: React.FC = () => {
   const dispatch = usePipelineDispatch();
   return (
     <motion.div
@@ -41,7 +41,9 @@ const InitialBlock: React.FC = () => {
         <Button
           type="dashed"
           style={ButtonStyle}
-          onClick={() => dispatch({ type: 'add_blank' })}
+          onClick={() =>
+            dispatch({ type: 'add_blank', incoming: [], outgoing: [] })
+          }
         >
           <PlusOutlined style={IconStyle} />
         </Button>
@@ -60,4 +62,4 @@ const InitialBlock: React.FC = () => {
   );
 };
 
-export { InitialBlock };
+export { BlockEmpty };

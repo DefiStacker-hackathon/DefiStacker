@@ -8,7 +8,11 @@ import { usePipeline } from './context';
 
 // TODO: move the following to styled-components
 const FooterStyle: React.CSSProperties = { textAlign: 'center' };
-const ContainerStyle: React.CSSProperties = { height: '98vh', width: '100vw' };
+const ContainerStyle: React.CSSProperties = {
+  minHeight: '98vh',
+  height: '100%',
+  width: '100vw',
+};
 const ContentStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'center',

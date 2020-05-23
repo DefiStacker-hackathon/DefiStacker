@@ -1,16 +1,20 @@
 import * as React from 'react';
-import { Form } from '.';
+import { BlockForm, BlockConnection } from '.';
 import { motion, useMotionValue } from 'framer-motion';
-import { Adapter, AdapterKind } from '../lib/adapters/adapter';
+import { Adapter } from '../lib/adapters/adapter';
 const { useEffect, useState, useRef } = React;
-// Config
-const onTop = { zIndex: 1, scale: 1.12 };
-const flat = {
+import { usePipelineDispatch } from '../context';
+
+const maxHeight = '300px';
+const DraggingStyle: string = `{
+  zIndex: 1,
+  scale: 1.12,
+}`;
+const DefaultStyle: string = `{
   scale: 1,
   zIndex: 0,
   transition: { delay: 0.3 },
-};
-const maxHeight = '300px';
+}`;
 
 const Block = ({
   color,
@@ -19,6 +23,9 @@ const Block = ({
   i,
   adapter,
   id,
+  previous,
+  next,
+  chainLength,
 }: {
   color: string;
   setPosition: Function;
@@ -26,8 +33,15 @@ const Block = ({
   i: number;
   adapter: Adapter;
   id: number;
+  previous: number[];
+  next: number[];
+  chainLength: number;
 }) => {
   const [isDragging, setDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(0);
+  const [isHovering, setIsHovering] = useState(chainLength === 1);
+
+  const dispatch = usePipelineDispatch();
 
   // We'll use a `ref` to access the DOM element that the `motion.li` produces.
   // This will allow us to measure its height and position, which will be useful to
@@ -48,45 +62,65 @@ const Block = ({
   });
 
   return (
-    <motion.div
-      ref={ref}
-      initial={false}
-      // If we're dragging, we want to set the zIndex of that item to be on top of the other items.
-      animate={isDragging ? onTop : flat}
-      style={{
-        background: color,
-        maxHeight,
-        width: '400px',
-        borderRadius: '3px',
-        marginBottom: '10px',
-      }}
-      drag="y"
-      dragOriginY={dragOriginY}
-      dragConstraints={{ top: 0, bottom: 0 }}
-      dragElastic={1}
-      onDragStart={() => setDragging(true)}
-      onDragEnd={() => setDragging(false)}
-      onDrag={(e, { point }) => moveItem(i, point.y)}
-      positionTransition={({ delta }) => {
-        if (isDragging) {
-          // If we're dragging, we want to "undo" the items movement within the list
-          // by manipulating its dragOriginY. This will keep the item under the cursor,
-          // even though it's jumping around the DOM.
-          dragOriginY.set(dragOriginY.get() + delta.y);
-        }
-
-        // If `positionTransition` is a function and returns `false`, it's telling
-        // Motion not to animate from its old position into its new one. If we're
-        // dragging, we don't want any animation to occur.
-        return !isDragging;
-      }}
+    <div
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
     >
-      {adapter.kind === AdapterKind.NULL ? (
-        <Form i={i} id={id} />
-      ) : (
-        <div>Title {i + 1}</div>
-      )}
-    </motion.div>
+      <motion.div
+        ref={ref}
+        initial={false}
+        // If we're dragging, we want to set the zIndex of that item to be on top of the other items.
+        animate={isDragging ? DraggingStyle : DefaultStyle}
+        style={{
+          background: color,
+          maxHeight,
+          width: '100%',
+          borderRadius: '3px',
+          marginBottom: '10px',
+          cursor: "pointer"
+        }}
+        drag="y"
+        dragOriginY={dragOriginY}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={1}
+        onDragStart={() => {
+          setDragStart(i);
+          setDragging(true);
+        }}
+        onDragEnd={() => {
+          if (dragStart != i)
+            dispatch({
+              type: 'move',
+              id,
+              to: { incoming: previous, outgoing: next },
+            });
+          setDragging(false);
+        }}
+        onDrag={(e, { point }) => moveItem(i, point.y)}
+        positionTransition={({ delta }) => {
+          if (isDragging) {
+            // If we're dragging, we want to "undo" the items movement within the list
+            // by manipulating its dragOriginY. This will keep the item under the cursor,
+            // even though it's jumping around the DOM.
+            dragOriginY.set(dragOriginY.get() + delta.y);
+          }
+
+          // If `positionTransition` is a function and returns `false`, it's telling
+          // Motion not to animate from its old position into its new one. If we're
+          // dragging, we don't want any animation to occur.
+          return !isDragging;
+        }}
+      >
+        <BlockForm id={id} adapter={adapter} isHovering={isHovering} />
+      </motion.div>
+      <BlockConnection
+        id={id}
+        previous={previous}
+        next={next}
+        isHovering={isHovering}
+      />
+    </div>
   );
 };
 

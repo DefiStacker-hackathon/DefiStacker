@@ -2,6 +2,7 @@ import * as React from 'react';
 const { useState, useEffect } = React;
 import { Button } from 'antd';
 import { usePipelineState } from '../context';
+import { serializePipeline } from '../lib/pipeline';
 
 const Submit = () => {
   const [disabled, setDisabled] = useState(true);
@@ -12,7 +13,11 @@ const Submit = () => {
   }, [state]);
 
   return (
-    <Button disabled={disabled} type="primary">
+    <Button
+      disabled={disabled}
+      type={disabled ? 'dashed' : 'primary'}
+      onClick={() => console.log(serializePipeline(state.pipeline))}
+    >
       Submit
     </Button>
   );

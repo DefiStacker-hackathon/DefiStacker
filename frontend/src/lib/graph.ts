@@ -118,11 +118,12 @@ export function removeNode<T, V>(
 ): Graph<Node<V>, T> {
   let nextGraph = produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
     draft.nodes.delete(nodeKey);
+    draft.incomingAdjacency.delete(nodeKey);
   });
   graph.incomingAdjacency.forEach((currentList, currentNodeKey) => {
     const idx = currentList.indexOf(nodeKey);
     if (idx > -1) {
-      nextGraph = produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(graph, draft => {
+      nextGraph = produce<Graph<Node<V>, T>, Graph<Node<V>, T>>(nextGraph, draft => {
         draft.incomingAdjacency.get(currentNodeKey).splice(idx);
       });
     };

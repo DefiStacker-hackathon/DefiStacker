@@ -20,11 +20,16 @@ const Landing: React.FC = () => {
       }}
     >
       <Col span={24} md={12}>
-        <Row justify="center">Welcome to DeFi Stacker! We do some stuff.</Row>
+        <Row justify="center">
+          <h1>Welcome to DeFi Stacker!</h1>
+        </Row>
+        <Row justify="center">
+          <p>Stack your money like legos.</p>
+        </Row>
       </Col>
       <Col span={24} md={12}>
         <Row justify="center" style={RowStyle}>
-          What would you like to do with DeFi today?
+          <h1>What would you like to do with DeFi today?</h1>
         </Row>
         <Row justify="center" style={RowStyle}>
           <Col style={ColStyle}>
@@ -40,17 +45,13 @@ const Landing: React.FC = () => {
             </Button>
           </Col>
           <Col offset={1} style={ColStyle}>
-            <Button
-              size="large"
-              onClick={() => dispatch({ type: 'init' })}
-              type="dashed"
-            >
+            <Button size="large" onClick={() => dispatch({ type: 'init' })}>
               <Row>Build my own transaction</Row>
             </Button>
           </Col>
         </Row>
-        <Row justify="center" style={RowStyle}>
-          Saved templates:
+        <Row justify="center" style={{ ...RowStyle, marginTop: '80px' }}>
+          <h2>Saved templates:</h2>
         </Row>
         <Row justify="center" style={RowStyle}>
           <Button size="large" type="dashed" disabled>
