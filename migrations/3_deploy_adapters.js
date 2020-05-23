@@ -7,7 +7,7 @@ const { GATEWAY_ADDRESSES } = require('../utils/constants');
 
 module.exports = function(deployer) {
   // Sends some eth for gas to use in flash loan txs
-  deployer.deploy(AaveAdapter, Stacker.address, { value: web3.utils.toWei('1', 'ether') });
+  deployer.deploy(AaveAdapter, Stacker.address);
   deployer.deploy(KyberAdapter);
   deployer.deploy(UniswapAdapter);
 };
