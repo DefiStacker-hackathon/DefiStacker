@@ -16,15 +16,20 @@ import {
 } from './lib/adapters/adapter';
 import { getProvider } from './utils/metamask';
 
+interface Contracts {
+  [name: string]: string;
+}
+
 interface State {
   provider: ethers.ethers.providers.JsonRpcProvider;
   pipeline: Graph<Node<Adapter>, number>;
-  // TODO: Wallet?
+  contracts: Contracts;
 }
 
 type Action =
   | { type: 'connect' }
   | { type: 'init' }
+  | { type: 'initContracts'; data: Contracts }
   | { type: 'add_blank'; incoming: number[]; outgoing: number[] }
   | {
       type: 'move';
@@ -56,6 +61,10 @@ function pipelineReducer(state: State, action: Action) {
     // Initialize a new pipeline
     case 'init': {
       return { ...state, pipeline: startNewPipeline() };
+    }
+    case 'initContracts': {
+      const { data } = action;
+      return { ...state, contracts: data };
     }
     // Add a new blank to the pipeline that will be rendered as a form
     case 'add_blank': {
