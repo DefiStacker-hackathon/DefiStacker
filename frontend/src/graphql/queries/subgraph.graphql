@@ -1,6 +1,7 @@
-query testQuery {
+query subgraph {
   adapters {
     id
+    gateway
   }
   stackers {
     id

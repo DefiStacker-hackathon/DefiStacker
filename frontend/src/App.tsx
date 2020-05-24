@@ -5,6 +5,7 @@ const { Header, Content, Footer } = Layout;
 import { ApartmentOutlined } from '@ant-design/icons';
 import { Chain, Landing } from './components';
 import { usePipeline } from './context';
+import { useSubgraphQuery } from './graphql/queries/subgraph.queries';
 
 // TODO: move the following to styled-components
 const FooterStyle: React.CSSProperties = { textAlign: 'center' };
@@ -25,9 +26,16 @@ const TitleStyle: React.CSSProperties = { fontSize: '26px', fontWeight: 700 };
 const App: React.FC = () => {
   const [state, dispatch] = usePipeline();
 
+  const [{ data, error }, refresh] = useSubgraphQuery();
+
   useEffect(() => {
     dispatch({
       type: 'connect',
+    });
+    const contracts = {};
+    dispatch({
+      type: 'initContracts',
+      data: contracts,
     });
   }, []);
 
