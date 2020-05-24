@@ -24,6 +24,9 @@ contract AaveAdapter is IAaveFlashLoanReceiver {
         STACKER_ADDRESS = _stacker;
     }
 
+    // Needed to receive ETH from flash loan
+    receive() external payable {}
+
     /// @dev Expected hook called during IAaveLendingPool().flashLoan()
     function executeOperation(
         address _reserve,
@@ -34,8 +37,6 @@ contract AaveAdapter is IAaveFlashLoanReceiver {
         external
         override
     {
-        // require(_amount <= getBalanceInternal(address(this), _reserve), "Invalid balance, was the flashLoan successful?");
-
         // Format loan asset as spend asset
         address[] memory spendAssets = new address[](1);
         uint256[] memory spendBalances = new uint256[](1);
@@ -72,6 +73,7 @@ contract AaveAdapter is IAaveFlashLoanReceiver {
 
     function payBackFlashLoan(address _gateway, bytes calldata _callArgs)
         external
+        payable
         returns (address[] memory)
     {
         (address reserve, uint256 amountDue) = abi.decode(_callArgs, (address, uint256));
@@ -88,6 +90,7 @@ contract AaveAdapter is IAaveFlashLoanReceiver {
 
     function takeFlashLoan(address _gateway, bytes calldata _callArgs)
         external
+        payable
         returns (address[] memory)
     {
         address lendingPool = IAaveLendingPoolAddressesProvider(_gateway).getLendingPool();
