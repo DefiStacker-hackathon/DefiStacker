@@ -9,6 +9,9 @@ contract CompoundAdapter {
 
     uint256 constant MAX_PERCENTAGE = 10 ** 18; // 100%
 
+    // Needed to receive ETH from adapters
+    receive() external payable {}
+
     function lend(address, bytes calldata _callArgs)
         external
         payable
@@ -51,7 +54,8 @@ contract CompoundAdapter {
                     srcPercent
                 );
             }
-            require(ICErc20(srcToken).mint(srcAmount) == 0, "lend: mint failed");
+            IERC20(srcToken).approve(destToken, srcAmount);
+            require(ICErc20(destToken).mint(srcAmount) == 0, "lend: mint failed");
         }
 
         // Return received assets array
