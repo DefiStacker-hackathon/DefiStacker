@@ -8,6 +8,7 @@ export interface Adapter {
 
 export enum AdapterKind {
   AAVE = "aave",
+  FUND = "fund",
   KYBER = "kyber",
   UNISWAP_1 = "uniswap_1",
   NULL = "",

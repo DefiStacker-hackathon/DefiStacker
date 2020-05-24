@@ -7,7 +7,7 @@ services:
       - ganache-cli
       - --db=/data/ganache
       - --fork="https://node.moonnet.space/uuid/${MOONNET_UUID}"
-      - --unlock=0x2a1530C4C41db0B0b2bB646CB5Eb1A67b7158667
+      - --unlock=0x2a1530C4C41db0B0b2bB646CB5Eb1A67b7158667 # dai exchange addr
       - --hostname=0.0.0.0
     ports:
       - '8545:8545'

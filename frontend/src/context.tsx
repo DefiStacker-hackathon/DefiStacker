@@ -14,17 +14,20 @@ import {
   AdapterKind,
   AdapterMethod,
 } from './lib/adapters/adapter';
+import * as erc20 from './utils/erc20';
+import * as tokens from './utils/tokens';
 import { getProvider } from './utils/metamask';
 
 interface State {
   provider: ethers.ethers.providers.JsonRpcProvider;
   pipeline: Graph<Node<Adapter>, number>;
-  // TODO: Wallet?
 }
 
 type Action =
   | { type: 'connect' }
+  | { type: 'get_dai' }
   | { type: 'init' }
+  | { type: 'approve'; tokenSymbol: string; amountInWei: string, stackerAddress: string }
   | { type: 'add_blank'; incoming: number[]; outgoing: number[] }
   | {
       type: 'move';
@@ -51,11 +54,31 @@ function pipelineReducer(state: State, action: Action) {
   switch (action.type) {
     // Connect to web3 provider
     case 'connect': {
-      return { ...state, provider: getProvider() };
+      const provider = getProvider();
+      return { ...state, provider: provider };
+    }
+    // Transfer dai to account
+    case 'get_dai': {
+      const provider = getProvider();
+      erc20.getInitialDai(provider);
+      return state;
     }
     // Initialize a new pipeline
     case 'init': {
-      return { ...state, pipeline: startNewPipeline() };
+      return {
+        ...state,
+        pipeline: startNewPipeline(),
+      };
+    }
+    // Add a new fund adapter to the pipeline
+    case 'approve': {
+      console.log('state', state);
+      if (!state.pipeline) throw new Error('Pipeline not initialized');
+      const { tokenSymbol, amountInWei, stackerAddress } = action;
+      if (tokenSymbol == tokens.DAI.ticker) {
+        erc20.approveDai(state.provider, stackerAddress, amountInWei);
+      }
+      return state;
     }
     // Add a new blank to the pipeline that will be rendered as a form
     case 'add_blank': {
