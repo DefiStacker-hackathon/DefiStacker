@@ -18,9 +18,14 @@ import * as erc20 from './utils/erc20';
 import * as tokens from './utils/tokens';
 import { getProvider } from './utils/metamask';
 
+interface Contracts {
+  [name: string]: string;
+}
+
 interface State {
   provider: ethers.ethers.providers.JsonRpcProvider;
   pipeline: Graph<Node<Adapter>, number>;
+  contracts: Contracts;
 }
 
 type Action =
@@ -28,6 +33,7 @@ type Action =
   | { type: 'get_dai' }
   | { type: 'init' }
   | { type: 'approve'; tokenSymbol: string; amountInWei: string, stackerAddress: string }
+  | { type: 'initContracts'; data: Contracts }
   | { type: 'add_blank'; incoming: number[]; outgoing: number[] }
   | {
       type: 'move';
@@ -79,6 +85,10 @@ function pipelineReducer(state: State, action: Action) {
         erc20.approveDai(state.provider, stackerAddress, amountInWei);
       }
       return state;
+    }
+    case 'initContracts': {
+      const { data } = action;
+      return { ...state, contracts: data };
     }
     // Add a new blank to the pipeline that will be rendered as a form
     case 'add_blank': {
@@ -144,6 +154,7 @@ function PipelineProvider({ children }: PipelineProviderProps) {
   const [state, dispatch] = React.useReducer(pipelineReducer, {
     provider: null,
     pipeline: null,
+    contracts: null,
   });
   return (
     <PipelineStateContext.Provider value={state}>

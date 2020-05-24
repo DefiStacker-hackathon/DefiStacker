@@ -1,26 +1,26 @@
-import { ethers } from "ethers";
-import { Contract, TransactionWrapper } from "./Contract";
+import { ethers } from 'ethers';
+import { Contract, TransactionWrapper } from './Contract';
 
 export class Stacker extends Contract {
   /**
    * The contract abis.
    */
   public static readonly abi: string[] = [
-    "event AdapterAdded(address adapter, address gateway)",
-    "event AdapterRemoved(address adapter, address gateway)",
-    "event CallExecuted(uint256 stackId, address callAdapter, string callSig, bytes callArgs, address[] incomingAssets, uint256[] incomingAmounts, address[] outgoingAssets, uint256[] outgoingAmounts)",
-    "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-    "event StackExecuted(address indexed sender, uint256 stackId, address[] spendAssets, uint256[] spendAssetBalances, address[] callAdapters, string[] callSigs, bytes[] callArgs, address[] paidOutAssets, uint256[] paidOutAmounts)",
-    "function ETH_ADDRESS() view returns (address)",
-    "function adapterToGateway(address) view returns (address)",
-    "function owner() view returns (address)",
-    "function renounceOwnership()",
-    "function stackId() view returns (uint256)",
-    "function transferOwnership(address newOwner)",
-    "function addAdapter(address _adapter, address _gateway)",
-    "function executeStackNoPayout(address[] _spendAssets, uint256[] _spendAssetBalances, address[] _callAdapters, string[] _callSigs, bytes[] _callArgs) payable",
-    "function executeStack(address[] _spendAssets, uint256[] _spendAssetBalances, address[] _callAdapters, string[] _callSigs, bytes[] _callArgs) payable",
-    "function removeAdapter(address _adapter)",
+    'event AdapterAdded(address adapter, address gateway)',
+    'event AdapterRemoved(address adapter, address gateway)',
+    'event CallExecuted(uint256 stackId, address callAdapter, string callSig, bytes callArgs, address[] incomingAssets, uint256[] incomingAmounts, address[] outgoingAssets, uint256[] outgoingAmounts)',
+    'event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)',
+    'event StackExecuted(address indexed sender, uint256 stackId, address[] spendAssets, uint256[] spendAssetBalances, address[] callAdapters, string[] callSigs, bytes[] callArgs, address[] paidOutAssets, uint256[] paidOutAmounts)',
+    'function ETH_ADDRESS() view returns (address)',
+    'function adapterToGateway(address) view returns (address)',
+    'function owner() view returns (address)',
+    'function renounceOwnership()',
+    'function stackId() view returns (uint256)',
+    'function transferOwnership(address newOwner)',
+    'function addAdapter(address _adapter, address _gateway)',
+    'function executeStackNoPayout(address[] _spendAssets, uint256[] _spendAssetBalances, address[] _callAdapters, string[] _callSigs, bytes[] _callArgs) payable',
+    'function executeStack(address[] _spendAssets, uint256[] _spendAssetBalances, address[] _callAdapters, string[] _callSigs, bytes[] _callArgs) payable',
+    'function removeAdapter(address _adapter)',
   ];
   /**
    * ```solidity
@@ -37,7 +37,7 @@ export class Stacker extends Contract {
    */
   adapterToGateway: (
     $$0: string,
-    $$overrides?: ethers.CallOverrides
+    $$overrides?: ethers.CallOverrides,
   ) => Promise<string>;
   /**
    * ```solidity
@@ -75,7 +75,7 @@ export class Stacker extends Contract {
    */
   addAdapter: (
     _adapter: string,
-    _gateway: string
+    _gateway: string,
   ) => TransactionWrapper<ethers.Overrides>;
   /**
    * ```solidity
@@ -88,7 +88,7 @@ export class Stacker extends Contract {
     _spendAssetBalances: ethers.BigNumber[],
     _callAdapters: string[],
     _callSigs: string[],
-    _callArgs: string | ethers.utils.BytesLike
+    _callArgs: string | ethers.utils.BytesLike,
   ) => TransactionWrapper<ethers.PayableOverrides>;
   /**
    * ```solidity
@@ -101,7 +101,7 @@ export class Stacker extends Contract {
     _spendAssetBalances: ethers.BigNumber[],
     _callAdapters: string[],
     _callSigs: string[],
-    _callArgs: string | ethers.utils.BytesLike
+    _callArgs: string | ethers.utils.BytesLike,
   ) => TransactionWrapper<ethers.PayableOverrides>;
   /**
    * ```solidity
