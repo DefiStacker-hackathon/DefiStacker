@@ -26,18 +26,21 @@ const TitleStyle: React.CSSProperties = { fontSize: '26px', fontWeight: 700 };
 const App: React.FC = () => {
   const [state, dispatch] = usePipeline();
 
-  const [{ data, error }, refresh] = useSubgraphQuery();
+  const [{ data }] = useSubgraphQuery();
 
   useEffect(() => {
     dispatch({
       type: 'connect',
     });
-    const contracts = {};
-    dispatch({
-      type: 'initContracts',
-      data: contracts,
-    });
   }, []);
+
+  useEffect(() => {
+    if (data)
+      dispatch({
+        type: 'initContracts',
+        data,
+      });
+  }, [data]);
 
   return (
     <Layout className="layout" style={ContainerStyle}>

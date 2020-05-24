@@ -17,10 +17,8 @@ import {
 import * as erc20 from './utils/erc20';
 import * as tokens from './utils/tokens';
 import { getProvider } from './utils/metamask';
-
-interface Contracts {
-  [name: string]: string;
-}
+import { Contracts, initializeContracts } from './utils/contracts';
+import { SubgraphQuery } from './graphql/queries/subgraph.queries';
 
 interface State {
   provider: ethers.ethers.providers.JsonRpcProvider;
@@ -30,10 +28,15 @@ interface State {
 
 type Action =
   | { type: 'connect' }
+  | { type: 'initContracts'; data: SubgraphQuery }
+  | { type: 'initBlankPipeline' }
   | { type: 'get_dai' }
-  | { type: 'init' }
-  | { type: 'approve'; tokenSymbol: string; amountInWei: string, stackerAddress: string }
-  | { type: 'initContracts'; data: Contracts }
+  | {
+      type: 'approve';
+      tokenSymbol: string;
+      amountInWei: string;
+      stackerAddress: string;
+    }
   | { type: 'add_blank'; incoming: number[]; outgoing: number[] }
   | {
       type: 'move';
@@ -63,18 +66,24 @@ function pipelineReducer(state: State, action: Action) {
       const provider = getProvider();
       return { ...state, provider: provider };
     }
+    // Initialize deployed contracts
+    case 'initContracts': {
+      const { data } = action;
+      const contracts = initializeContracts(data, state.provider);
+      return { ...state, contracts };
+    }
+    // Initialize a new pipeline
+    case 'initBlankPipeline': {
+      return {
+        ...state,
+        pipeline: startNewPipeline(),
+      };
+    }
     // Transfer dai to account
     case 'get_dai': {
       const provider = getProvider();
       erc20.getInitialDai(provider);
       return state;
-    }
-    // Initialize a new pipeline
-    case 'init': {
-      return {
-        ...state,
-        pipeline: startNewPipeline(),
-      };
     }
     // Add a new fund adapter to the pipeline
     case 'approve': {
@@ -85,10 +94,6 @@ function pipelineReducer(state: State, action: Action) {
         erc20.approveDai(state.provider, stackerAddress, amountInWei);
       }
       return state;
-    }
-    case 'initContracts': {
-      const { data } = action;
-      return { ...state, contracts: data };
     }
     // Add a new blank to the pipeline that will be rendered as a form
     case 'add_blank': {
