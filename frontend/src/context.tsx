@@ -20,9 +20,6 @@ import { getProvider, sendEth } from './utils/metamask';
 import { Contracts, initializeContracts } from './utils/contracts';
 import { SubgraphQuery } from './graphql/queries/subgraph.queries';
 
-interface Contracts {
-  [name: string]: string;
-}
 interface State {
   provider: ethers.providers.Web3Provider;
   pipeline: Graph<Node<Adapter>, number>;
