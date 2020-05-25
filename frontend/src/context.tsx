@@ -16,14 +16,14 @@ import {
 } from './lib/adapters/adapter';
 import * as erc20 from './utils/erc20';
 import * as tokens from './utils/tokens';
-import { getProvider } from './utils/metamask';
+import { getProvider, sendEth } from './utils/metamask';
 
 interface Contracts {
   [name: string]: string;
 }
 
 interface State {
-  provider: ethers.ethers.providers.JsonRpcProvider;
+  provider: ethers.providers.Web3Provider;
   pipeline: Graph<Node<Adapter>, number>;
   contracts: Contracts;
 }
@@ -31,6 +31,7 @@ interface State {
 type Action =
   | { type: 'connect' }
   | { type: 'get_dai' }
+  | { type: 'send_eth'; to: string; amountInEth: string }
   | { type: 'init' }
   | { type: 'approve'; tokenSymbol: string; amountInWei: string, stackerAddress: string }
   | { type: 'initContracts'; data: Contracts }
@@ -67,6 +68,13 @@ function pipelineReducer(state: State, action: Action) {
     case 'get_dai': {
       const provider = getProvider();
       erc20.getInitialDai(provider);
+      return state;
+    }
+    // Send eth
+    case 'send_eth': {
+      const provider = getProvider();
+      const { to, amountInEth } = action;
+      sendEth(provider, to, amountInEth);
       return state;
     }
     // Initialize a new pipeline

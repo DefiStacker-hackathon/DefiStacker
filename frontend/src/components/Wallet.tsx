@@ -4,6 +4,7 @@ import { WalletOutlined } from '@ant-design/icons';
 import { usePipelineDispatch } from '../context';
 import { usePipelineState } from '../context';
 import { useSubgraphQuery } from '../graphql/queries/subgraph.queries';
+import * as addresses from '../lib/addresses';
 
 const { Option } = Select;
 
@@ -50,17 +51,18 @@ const Wallet = () => {
   }
 
   function start() {
-    dispatch({ type: "init"});
+    dispatch({ type: "init" });
     setShowInput(true);
   }
 
-  function temp() {
+  function getDai() {
+    console.log("get dai");
     dispatch({ type: "get_dai"});
   }
 
   function renderWalletButton() {
     return (
-    <Button type="dashed" style={WalletContainerStyle} onClick={temp}>
+    <Button type="dashed" style={WalletContainerStyle} onClick={start}>
       <Row justify="center">
         <Col>Add Funds</Col>
       </Row>
@@ -85,8 +87,14 @@ const Wallet = () => {
     );
   }
 
+  function burnTest() {
+    dispatch({ type: "send_eth", to: addresses.ZERO_ADDRESS, amountInEth: "1" });
+  }
+
   return (
     <div>
+      <Button onClick={burnTest}>Burn Test</Button>
+      <Button onClick={getDai}>Get DAI</Button>
       {!showInput && renderWalletButton()}
       {showInput && renderInput()}
     </div>
