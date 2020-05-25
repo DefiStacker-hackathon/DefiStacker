@@ -23,6 +23,7 @@ const Wallet = () => {
   const dispatch = usePipelineDispatch();
   const inputRef = React.useRef(null);
   const selectorRef = React.useRef(null);
+  const [{ data }] = useSubgraphQuery();
 
   const selectBefore = (
     <Select defaultValue="DAI" className="select-before" ref={selectorRef} onChange={handleChange}>
@@ -45,19 +46,18 @@ const Wallet = () => {
       type: "approve",
       tokenSymbol: tokenSymbol,
       amountInWei: amountInWei,
-      // TODO
-      stackerAddress: "",
     });
   }
 
   function start() {
-    dispatch({ type: "init" });
+    dispatch({ type: "initContracts", data: data });
+    dispatch({ type: "initBlankPipeline" });
     setShowInput(true);
   }
 
   function getDai() {
     console.log("get dai");
-    dispatch({ type: "get_dai"});
+    dispatch({ type: "get_stacker_dai"});
   }
 
   function renderWalletButton() {

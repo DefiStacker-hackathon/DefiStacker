@@ -38,7 +38,7 @@ const App: React.FC = () => {
     if (data)
       dispatch({
         type: 'initContracts',
-        data,
+        data: data,
       });
   }, [data]);
 

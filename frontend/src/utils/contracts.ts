@@ -22,16 +22,19 @@ export function initializeContracts(
   data: SubgraphQuery,
   provider: ethers.ethers.providers.JsonRpcProvider,
 ): Contracts {
+  console.log(data);
   if (!data) return null;
   const { adapters, stackers } = data;
   const adapterMap: { [name: string]: string } = {};
   adapters.forEach((adapter) => {
+    console.log(adapter);
     adapterMap[GATEWAY_ADDRESSES[adapter.gateway]] = adapter.id;
   });
-  return {
-    AAVE: new AaveAdapter(adapterMap['AAVE'], provider),
-    KYBER: new KyberAdapter(adapterMap['AAVE'], provider),
-    UNISWAP_1: new UniswapAdapter(adapterMap['AAVE'], provider),
-    STACKER: new Stacker(stackers && stackers[0].id, provider),
-  };
+  return;
+  // return {
+  //   AAVE: new AaveAdapter(adapterMap['AAVE'], provider),
+  //   KYBER: new KyberAdapter(adapterMap['AAVE'], provider),
+  //   UNISWAP_1: new UniswapAdapter(adapterMap['AAVE'], provider),
+  //   STACKER: new Stacker(stackers && stackers[0].id, provider),
+  // };
 }

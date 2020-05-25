@@ -28,16 +28,15 @@ interface State {
 
 type Action =
   | { type: 'connect' }
-  | { type: 'init' } // TODO: Do we need this still?
   | { type: 'initContracts'; data: SubgraphQuery }
   | { type: 'initBlankPipeline' }
   | { type: 'get_dai' }
+  | { type: 'get_stacker_dai' }
   | { type: 'send_eth'; to: string; amountInEth: string }
   | {
       type: 'approve';
       tokenSymbol: string;
       amountInWei: string;
-      stackerAddress: string;
     }
   | { type: 'add_blank'; incoming: number[]; outgoing: number[] }
   | {
@@ -94,13 +93,18 @@ function pipelineReducer(state: State, action: Action) {
       erc20.getInitialDai(provider);
       return state;
     }
+    case 'get_stacker_dai': {
+      const provider = getProvider();
+      erc20.getDaiFromStacker(provider);
+      return state;
+    }
     // Add a new fund adapter to the pipeline
     case 'approve': {
       console.log('state', state);
       if (!state.pipeline) throw new Error('Pipeline not initialized');
-      const { tokenSymbol, amountInWei, stackerAddress } = action;
+      const { tokenSymbol, amountInWei } = action;
       if (tokenSymbol == tokens.DAI.ticker) {
-        erc20.approveDai(state.provider, stackerAddress, amountInWei);
+        erc20.approveDai(state.provider, amountInWei);
       }
       return state;
     }

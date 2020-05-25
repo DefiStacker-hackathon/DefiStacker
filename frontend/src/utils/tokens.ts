@@ -22,6 +22,14 @@ export const DAI: Token = {
   address: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359'
 };
 
+export const ETH: Token = {
+  network: 1,
+  ticker: 'ETH',
+  lookup: 'ETH',
+  name: 'Ether',
+  address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+};
+
 export const REP: Token = {
   network: 1,
   ticker: 'REP',
