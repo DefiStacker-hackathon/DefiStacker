@@ -17,11 +17,12 @@ import {
 import * as erc20 from './utils/erc20';
 import * as tokens from './utils/tokens';
 import { getProvider, sendEth } from './utils/metamask';
+import { Contracts, initializeContracts } from './utils/contracts';
+import { SubgraphQuery } from './graphql/queries/subgraph.queries';
 
 interface Contracts {
   [name: string]: string;
 }
-
 interface State {
   provider: ethers.providers.Web3Provider;
   pipeline: Graph<Node<Adapter>, number>;
@@ -30,11 +31,17 @@ interface State {
 
 type Action =
   | { type: 'connect' }
+  | { type: 'init' } // TODO: Do we need this still?
+  | { type: 'initContracts'; data: SubgraphQuery }
+  | { type: 'initBlankPipeline' }
   | { type: 'get_dai' }
   | { type: 'send_eth'; to: string; amountInEth: string }
-  | { type: 'init' }
-  | { type: 'approve'; tokenSymbol: string; amountInWei: string, stackerAddress: string }
-  | { type: 'initContracts'; data: Contracts }
+  | {
+      type: 'approve';
+      tokenSymbol: string;
+      amountInWei: string;
+      stackerAddress: string;
+    }
   | { type: 'add_blank'; incoming: number[]; outgoing: number[] }
   | {
       type: 'move';
@@ -64,11 +71,11 @@ function pipelineReducer(state: State, action: Action) {
       const provider = getProvider();
       return { ...state, provider: provider };
     }
-    // Transfer dai to account
-    case 'get_dai': {
-      const provider = getProvider();
-      erc20.getInitialDai(provider);
-      return state;
+    // Initialize deployed contracts
+    case 'initContracts': {
+      const { data } = action;
+      const contracts = initializeContracts(data, state.provider);
+      return { ...state, contracts };
     }
     // Send eth
     case 'send_eth': {
@@ -78,11 +85,17 @@ function pipelineReducer(state: State, action: Action) {
       return state;
     }
     // Initialize a new pipeline
-    case 'init': {
+    case 'initBlankPipeline': {
       return {
         ...state,
         pipeline: startNewPipeline(),
       };
+    }
+    // Transfer dai to account
+    case 'get_dai': {
+      const provider = getProvider();
+      erc20.getInitialDai(provider);
+      return state;
     }
     // Add a new fund adapter to the pipeline
     case 'approve': {
@@ -93,10 +106,6 @@ function pipelineReducer(state: State, action: Action) {
         erc20.approveDai(state.provider, stackerAddress, amountInWei);
       }
       return state;
-    }
-    case 'initContracts': {
-      const { data } = action;
-      return { ...state, contracts: data };
     }
     // Add a new blank to the pipeline that will be rendered as a form
     case 'add_blank': {
