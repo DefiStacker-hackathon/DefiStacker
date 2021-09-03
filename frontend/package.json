@@ -22,7 +22,7 @@
     "formik": "^2.1.4",
     "framer-motion": "^1.10.3",
     "graphql": "^15.0.0",
-    "immer": "^6.0.5",
+    "immer": "^9.0.6",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-use": "^14.2.0",
